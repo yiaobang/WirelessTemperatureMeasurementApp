@@ -1,0 +1,132 @@
+package com.y.wirelesstemperaturemeasurement.data.parse
+
+/**
+ * 数据字节格式顺序如下：
+ * [0]：数据头		0x53
+ * [1]：模块的当前地址,     最小值为1，最大值为254  0或FF时为广播式操作读写
+ * [2]：功能码即主标识      读(0x03)或写(0x10) ,接收模块主动上传温度值是读(0x03)
+ * [3]：功能码即副标识
+ *      1-参数值的读写操作
+ *      2-温度值传送,
+ *      3-错误,
+ *      4-返回成功，
+ *      5-不为本模块数据，但是通信收发正确
+ *      6-读取模块硬件版本号,
+ *      7-读到模块软件版本号
+ * [4]：数据长度：从数据长度本身下一个字节开始到校验和前一个数据字节长度。1个字节
+ * [5]，发送模块点地址最低字节
+ * [6]，发送模块点地址次高字节
+ * [7]，发送模块点地址中高字节
+ * [8]，发送模块点地址最高字节
+ * [9]，温度低8位
+ * [10]，温度高8位
+ * [11]，供电电压低8位 无，默认为0
+ * [12]，供电电压高8位	无，默认为0
+ * [13]，默认为0
+ * [14]，默认为0
+ * [15]，附加信息1：RSSI值
+ * [16]，附加信息2：默认为0
+ * [17]：校验和  校验和字前的所有的字节数据累加和操作
+ * [18]：0x16结束符
+ */
+
+/** 软件版本 */
+@Volatile
+lateinit var softwareVersion: String
+/** 硬件版本 */
+@Volatile
+lateinit var hardwareVersion: String
+
+const val TEMP = "℃"
+const val VOLTAGE = "V"
+const val RH = "%RH"
+
+const val MIN_DATA_SIZE = 11
+enum class MainFunctionCode(byte: Byte) {
+    READ(0x03), WRITE(0x10);
+}
+enum class MinorFunctionCode(val byte: Byte) {
+    RW(0x01),
+    TEMP(0x02),
+    ERROR(0X03),
+    SUCCESS(0x04),
+    OTHER_DATA(0x05),
+    HARDWARE(0x06),
+    SOFTWARE(0x07);
+}
+/**
+ * 计算返回码
+ * @return
+ */
+fun computeReplyData(data: ByteArray): ByteArray {
+    val byteArrayOf = byteArrayOf(
+        0x53,
+        data[1],
+        0x03,
+        0x04,
+        0x04,
+        data[5],
+        data[6],
+        data[7],
+        data[8]
+    )
+    return byteArrayOf(*byteArrayOf, calculateChecksumResult(byteArrayOf), 0x16)
+}
+/**
+ * 计算校验和的结果
+ * @param [data] 数据
+ * @return [Byte]
+ */
+fun calculateChecksumResult(data: ByteArray): Byte =
+    (data.sumOf { it.toInt() and 0xFF } and 0xFF).toByte()
+/**
+ * 校验和验证
+ * @param [data] 数据
+ * @return [Boolean]
+ */
+fun checksum(data: MutableList<Byte>): Boolean =
+    calculateChecksumResult(
+        data.subList(0, data.size - 2).toByteArray()
+    ) == (data[data.size - 2].toInt() and 0xFF).toByte()
+/**
+ * 解析模块地址(序列号)
+ * @param [maxLow] 地址最低字节
+ * @param [low] 地址次高字节
+ * @param [high] 地址中高字节
+ * @param [maxHigh] 地址最高字节
+ */
+fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): Long =
+    restoreData(maxLow, low, high, maxHigh)
+/**
+ * 解析温度(℃)
+ * @param [low] 低
+ * @param [high] 高
+ */
+fun temperature(low: Byte, high: Byte): Double = restoreData(low, high).toDouble() / 100.0
+/**
+ * 解析电压(mv)/ 或者湿度 RH
+ * @param [low] 低
+ * @param [high] 高
+ */
+fun voltageRH(low: Byte, high: Byte): Double = restoreData(low, high).toDouble()
+/**
+ * 恢复数据
+ * @param [data] 数据
+ * @return [Long]
+ */
+fun restoreData(vararg data: Byte): Long = data.foldIndexed(0L) { index, acc, byte ->
+    acc or ((byte.toLong() and 0xFFL) shl (index * 8))
+}
+/**
+ * 解析软件版本或者硬件版本
+ * @param [data] 数据
+ * @return [String]
+ */
+fun version(data: ByteArray): String = String(data.sliceArray(5 until data.size - 2))
+/**
+ * 转换为十六进制字符串数组
+ * @return [Array<String>]
+ */
+fun ByteArray.toHexStrArray(): Array<String> {
+    return this.map { byte -> "%02X".format(byte) }.toTypedArray()
+}

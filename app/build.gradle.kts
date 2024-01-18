@@ -22,7 +22,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -47,10 +47,22 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    //JNI
+    sourceSets {
+        getByName("main").jniLibs.srcDirs("jni")
+    }
 }
 
 dependencies {
+    //MQTT
+    implementation (libs.hivemq.mqtt.client)
+    //串口
+    implementation(libs.jSerialComm)
+    //Modbus
+    implementation(libs.j2mod)
 
+
+    implementation("androidx.room:room-runtime")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,6 +71,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
