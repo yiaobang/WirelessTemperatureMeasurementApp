@@ -2,7 +2,22 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="add()">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="select()">
+        <State />
+      </entry>
+      <entry key="selectEverySensorNewData()">
+        <State />
+      </entry>
+      <entry key="serialNumberTest()">
+        <State />
+      </entry>
+      <entry key="updateSensor()">
         <State />
       </entry>
     </value>

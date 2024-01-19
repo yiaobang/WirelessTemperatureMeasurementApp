@@ -3,12 +3,13 @@ package com.y.wirelesstemperaturemeasurement.data.parse
 import android.util.Log
 import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.data.listener.writeData
+import com.y.wirelesstemperaturemeasurement.dataBase
+import com.y.wirelesstemperaturemeasurement.room.entity.SensorData
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 //数据缓存
 private val dataBuffer = mutableListOf<Byte>()
-
 //需要回复的数据
 private val replyMsg: MutableMap<Long, ByteArray> = mutableMapOf()
 fun dataParse(data: ByteArray) {
@@ -72,6 +73,7 @@ fun successHandler(bytes: ByteArray) {
 fun errorHandler(bytes: ByteArray) {
     Log.i(TAG, "otherDataHandler: 错误数据")
 }
+
 fun tempHandler(msg: ByteArray) {
     val address = address(msg[5], msg[6], msg[7], msg[8])
     if (replyMsg.containsKey(address)) {
@@ -83,16 +85,17 @@ fun tempHandler(msg: ByteArray) {
     }
 
     //TODO  传感器
-
-//    if (sensorMaps.containsKey(address)) {
-//        val newTemp = temperature(bufferedBytes[9], bufferedBytes[10])
-//        val newVoltageRH = voltageRH(bufferedBytes[11], bufferedBytes[12])
-//        val coordinate = sensorMaps[address]
-//        val place = devices[coordinate!!.device].places[coordinate.place]
-//        when (coordinate.phase) {
-//            A -> updateSensor(place.a, newTemp, newVoltageRH, bufferedBytes[15])
-//            B -> updateSensor(place.b, newTemp, newVoltageRH, bufferedBytes[15])
-//            C -> updateSensor(place.c, newTemp, newVoltageRH, bufferedBytes[15])
-//        }
-//    }
+    val id = dataBase.sensorDao().selectId(address)
+    if (id != null) {
+        val newTemp = temperature(msg[9], msg[10])
+        val newVoltageRH = voltageRH(msg[11], msg[12])
+        val sensorHistoryData = SensorData(
+            sensorId = id,
+            temperature = newTemp,
+            voltageRH = newVoltageRH,
+            rssi = msg[15]
+        )
+        Log.i(TAG, "添加历史数据: $sensorHistoryData")
+        dataBase.sensorDataDao().addSensorData(sensorHistoryData)
+    }
 }

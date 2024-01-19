@@ -5,7 +5,10 @@ import com.fazecast.jSerialComm.SerialPort
 import com.fazecast.jSerialComm.SerialPortEvent
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions
 import com.y.wirelesstemperaturemeasurement.TAG
+import com.y.wirelesstemperaturemeasurement.data.parse.HARD
+import com.y.wirelesstemperaturemeasurement.data.parse.SOFT
 import com.y.wirelesstemperaturemeasurement.data.parse.dataParse
+import com.y.wirelesstemperaturemeasurement.data.parse.softwareVersion
 import com.y.wirelesstemperaturemeasurement.data.parse.toHexStrArray
 
 @Volatile
@@ -17,6 +20,26 @@ const val parity: Int = SerialPort.NO_PARITY
 fun writeData(bytes: ByteArray) {
     serialPort.writeBytes(bytes, bytes.size)
 }
+
+fun connection(serial: String) {
+    serialPort = SerialPort.getCommPort(serial)
+    serialPort.setComPortParameters(baudRate, dataBits, stopBits, parity)
+    serialPort.addDataListener(SerialPortMessageListener)
+    serialPort.setComPortTimeouts(
+        SerialPort.TIMEOUT_READ_BLOCKING or SerialPort.TIMEOUT_WRITE_BLOCKING,
+        100, 100
+    )
+    if (serialPort.openPort()) {
+        writeData(SOFT)
+        Thread.sleep(500)
+        if (softwareVersion != null) {
+            writeData(HARD)
+            Log.d(TAG, "connection: 串口初始化完成")
+        }
+    }
+}
+
+
 /**
  * 串口消息监听器
  * @author Y

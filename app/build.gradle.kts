@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.github.sgtsilvio.gradle.android-retrofix") version "0.5.0"
+    id ("kotlin-kapt")
 }
 
 android {
@@ -17,6 +19,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas",
+                    "room.incremental" to "true"
+                )
+            }
         }
     }
 
@@ -44,7 +54,7 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,io.netty.versions.properties}"
         }
     }
     //JNI
@@ -55,14 +65,27 @@ android {
 
 dependencies {
     //MQTT
-    implementation (libs.hivemq.mqtt.client)
+    implementation(libs.hivemq.mqtt.client)
+    retrofix(libs.android.retrostreams)
+    retrofix(libs.android.retrofuture)
+
     //串口
     implementation(libs.jSerialComm)
     //Modbus
     implementation(libs.j2mod)
 
 
-    implementation("androidx.room:room-runtime")
+    //SQLite 数据库
+    val room_version = "2.6.1"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation("androidx.room:room-ktx:$room_version")
+    testImplementation("androidx.room:room-testing:$room_version")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

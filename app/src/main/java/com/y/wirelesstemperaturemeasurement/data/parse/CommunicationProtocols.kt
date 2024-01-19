@@ -29,22 +29,30 @@ package com.y.wirelesstemperaturemeasurement.data.parse
  * [17]：校验和  校验和字前的所有的字节数据累加和操作
  * [18]：0x16结束符
  */
+/**查询硬件版本**/
+val HARD: ByteArray = byteArrayOf(0x53, 0x00, 0x03, 0x06, 0x00, 0x5C, 0x16)
+
+/**查询软件版本**/
+val SOFT: ByteArray = byteArrayOf(0x53, 0x00, 0x03, 0x07, 0x00, 0x5D, 0x16)
 
 /** 软件版本 */
 @Volatile
-lateinit var softwareVersion: String
+var softwareVersion: String? = null
+
 /** 硬件版本 */
 @Volatile
-lateinit var hardwareVersion: String
+var hardwareVersion: String? = null
 
 const val TEMP = "℃"
 const val VOLTAGE = "V"
 const val RH = "%RH"
 
 const val MIN_DATA_SIZE = 11
+
 enum class MainFunctionCode(byte: Byte) {
     READ(0x03), WRITE(0x10);
 }
+
 enum class MinorFunctionCode(val byte: Byte) {
     RW(0x01),
     TEMP(0x02),
@@ -54,6 +62,7 @@ enum class MinorFunctionCode(val byte: Byte) {
     HARDWARE(0x06),
     SOFTWARE(0x07);
 }
+
 /**
  * 计算返回码
  * @return
@@ -72,6 +81,7 @@ fun computeReplyData(data: ByteArray): ByteArray {
     )
     return byteArrayOf(*byteArrayOf, calculateChecksumResult(byteArrayOf), 0x16)
 }
+
 /**
  * 计算校验和的结果
  * @param [data] 数据
@@ -79,6 +89,7 @@ fun computeReplyData(data: ByteArray): ByteArray {
  */
 fun calculateChecksumResult(data: ByteArray): Byte =
     (data.sumOf { it.toInt() and 0xFF } and 0xFF).toByte()
+
 /**
  * 校验和验证
  * @param [data] 数据
@@ -88,6 +99,7 @@ fun checksum(data: MutableList<Byte>): Boolean =
     calculateChecksumResult(
         data.subList(0, data.size - 2).toByteArray()
     ) == (data[data.size - 2].toInt() and 0xFF).toByte()
+
 /**
  * 解析模块地址(序列号)
  * @param [maxLow] 地址最低字节
@@ -97,18 +109,21 @@ fun checksum(data: MutableList<Byte>): Boolean =
  */
 fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): Long =
     restoreData(maxLow, low, high, maxHigh)
+
 /**
  * 解析温度(℃)
  * @param [low] 低
  * @param [high] 高
  */
 fun temperature(low: Byte, high: Byte): Double = restoreData(low, high).toDouble() / 100.0
+
 /**
  * 解析电压(mv)/ 或者湿度 RH
  * @param [low] 低
  * @param [high] 高
  */
-fun voltageRH(low: Byte, high: Byte): Double = restoreData(low, high).toDouble()
+fun voltageRH(low: Byte, high: Byte): Int = restoreData(low, high).toInt()
+
 /**
  * 恢复数据
  * @param [data] 数据
@@ -117,12 +132,14 @@ fun voltageRH(low: Byte, high: Byte): Double = restoreData(low, high).toDouble()
 fun restoreData(vararg data: Byte): Long = data.foldIndexed(0L) { index, acc, byte ->
     acc or ((byte.toLong() and 0xFFL) shl (index * 8))
 }
+
 /**
  * 解析软件版本或者硬件版本
  * @param [data] 数据
  * @return [String]
  */
 fun version(data: ByteArray): String = String(data.sliceArray(5 until data.size - 2))
+
 /**
  * 转换为十六进制字符串数组
  * @return [Array<String>]
