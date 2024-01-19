@@ -39,6 +39,12 @@ fun connection(serial: String) {
     }
 }
 
+fun disConnection() {
+    serialPort.removeDataListener()
+    serialPort.closePort()
+    Log.d(TAG, "disConnection: 串口关闭")
+}
+
 
 /**
  * 串口消息监听器

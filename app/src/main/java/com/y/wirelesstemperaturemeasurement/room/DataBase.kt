@@ -30,7 +30,7 @@ abstract class DataBase : RoomDatabase() {
                     DATA_BESE_NAME
                 )
 //                    //允许在主线程使用数据库   实际环境不要用
-//                    .allowMainThreadQueries()
+                    .allowMainThreadQueries()
                     .build()
             }
             return dataBase as DataBase
