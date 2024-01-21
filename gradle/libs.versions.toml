@@ -12,12 +12,17 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.8.2"
 composeBom = "2023.10.01"
-kaptVersion = "1.9.0"
+navigationCompose = "2.7.6"
+roomTesting = "2.6.1"
 
 [libraries]
 android-retrofuture = { module = "net.sourceforge.streamsupport:android-retrofuture", version.ref = "androidRetrofuture" }
 android-retrostreams = { module = "net.sourceforge.streamsupport:android-retrostreams", version.ref = "androidRetrofuture" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomTesting" }
+androidx-room-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomTesting" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomTesting" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomTesting" }
 hivemq-mqtt-client = { module = "com.hivemq:hivemq-mqtt-client", version.ref = "hivemqMqttClient" }
 j2mod = { module = "com.ghgande:j2mod", version.ref = "j2mod" }
 jSerialComm = { module = "com.fazecast:jSerialComm", version.ref = "jserialcomm" }
@@ -34,10 +39,10 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kapt = {id = "org.jetbrains.kotlin.kapt",version.ref = "kaptVersion"}
 
 

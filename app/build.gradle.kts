@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.github.sgtsilvio.gradle.android-retrofix") version "0.5.0"
-    id ("kotlin-kapt")
+    id("kotlin-kapt")
+
 }
 
 android {
@@ -66,6 +67,7 @@ android {
 dependencies {
     //MQTT
     implementation(libs.hivemq.mqtt.client)
+
     retrofix(libs.android.retrostreams)
     retrofix(libs.android.retrofuture)
 
@@ -76,14 +78,15 @@ dependencies {
 
 
     //SQLite 数据库
-    val room_version = "2.6.1"
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.room.compiler)
+    kapt(libs.androidx.room.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    testImplementation(libs.androidx.room.testing)
 
-    implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation("androidx.room:room-ktx:$room_version")
-    testImplementation("androidx.room:room-testing:$room_version")
+    //导航
+    implementation(libs.androidx.navigation.compose)
+
 
 
     implementation(libs.androidx.core.ktx)

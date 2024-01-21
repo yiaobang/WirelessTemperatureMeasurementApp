@@ -95,7 +95,7 @@ class Room {
     fun addSensorData() {
         addSensor()
         addRegion()
-        for (i in 1..50) {
+        for (i in 1..5000) {
             sensorDao.selectSensors().forEach {
                 sensorDataDao.addSensorData(SensorData(sensorId = it.id))
             }
