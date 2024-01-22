@@ -5,6 +5,7 @@ import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.data.listener.writeData
 import com.y.wirelesstemperaturemeasurement.dataBase
 import com.y.wirelesstemperaturemeasurement.room.entity.SensorData
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -48,33 +49,33 @@ private fun parseData(bytes: ByteArray) = runBlocking {
     }
 }
 
-fun softwareVersionHandler(bytes: ByteArray) {
-    softwareVersion = version(bytes)
-    Log.i(TAG, "软件版本 $softwareVersion")
+private fun softwareVersionHandler(bytes: ByteArray) {
+    StateViewModel.SOFT = version(bytes)
+    Log.i(TAG, "软件版本 ${StateViewModel.SOFT}")
 }
 
-fun hardwareVersionHandler(bytes: ByteArray) {
-    hardwareVersion = version(bytes)
-    Log.i(TAG, "硬件版本: $hardwareVersion")
+private fun hardwareVersionHandler(bytes: ByteArray) {
+    StateViewModel.HARD = version(bytes)
+    Log.i(TAG, "硬件版本: ${StateViewModel.HARD}")
 }
 
-fun readWriteHandler(bytes: ByteArray) {
+private fun readWriteHandler(bytes: ByteArray) {
     Log.i(TAG, "otherDataHandler: 读写数据")
 }
 
-fun otherDataHandler(bytes: ByteArray) {
+private fun otherDataHandler(bytes: ByteArray) {
     Log.i(TAG, "otherDataHandler: 其他数据")
 }
 
-fun successHandler(bytes: ByteArray) {
+private fun successHandler(bytes: ByteArray) {
     Log.i(TAG, "otherDataHandler: 成功数据")
 }
 
-fun errorHandler(bytes: ByteArray) {
+private fun errorHandler(bytes: ByteArray) {
     Log.i(TAG, "otherDataHandler: 错误数据")
 }
 
-fun tempHandler(msg: ByteArray) {
+private fun tempHandler(msg: ByteArray) {
     val address = address(msg[5], msg[6], msg[7], msg[8])
     if (replyMsg.containsKey(address)) {
         replyMsg[address]?.let { writeData(it) }
@@ -83,7 +84,6 @@ fun tempHandler(msg: ByteArray) {
         writeData(replyData)
         replyMsg[address] = replyData
     }
-
     //TODO  传感器
     val id = dataBase.sensorDao().selectId(address)
     if (id != null) {

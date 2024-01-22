@@ -2,6 +2,7 @@ package com.y.wirelesstemperaturemeasurement.room.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import com.y.wirelesstemperaturemeasurement.room.entity.Device
 import com.y.wirelesstemperaturemeasurement.room.entity.ShowData
 
 
@@ -30,4 +31,11 @@ interface JoinTableDao {
              * @return
              */
     fun selectEverySensorNewData(): List<ShowData>
+
+    /**
+     * 查询所有设备
+     */
+    @Query("SELECT device_name,region_name,serial_number,sensor_type,sensor_id FROM sensor JOIN region ON sensor.id = region.sensor_id")
+    fun selectAllDevice(): List<Device>
+
 }

@@ -6,12 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.y.wirelesstemperaturemeasurement.ui.components.GridCards
 import com.y.wirelesstemperaturemeasurement.ui.components.TopBar
-import com.y.wirelesstemperaturemeasurement.viewmodel.DataViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
 
 @Composable
 fun Menu() {
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = { TopBar("菜单") }) { paddingValues ->
-        GridCards(paddingValues,  DataViewModel.menuCards)
+        GridCards(paddingValues,  NavHostViewModel.menuCards)
     }
 }

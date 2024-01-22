@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.y.wirelesstemperaturemeasurement.ui.components.GridCards
 import com.y.wirelesstemperaturemeasurement.ui.components.TopBar
-import com.y.wirelesstemperaturemeasurement.viewmodel.DataViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
 
 
 @Composable
@@ -20,5 +20,5 @@ fun EventData() {
 
 @Composable
 fun EventContent(paddingValues: PaddingValues) {
-    GridCards(paddingValues,DataViewModel.eventCards)
+    GridCards(paddingValues,NavHostViewModel.eventCards)
 }

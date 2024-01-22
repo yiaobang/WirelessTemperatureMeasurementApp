@@ -29,26 +29,16 @@ package com.y.wirelesstemperaturemeasurement.data.parse
  * [17]：校验和  校验和字前的所有的字节数据累加和操作
  * [18]：0x16结束符
  */
+
 /**查询硬件版本**/
 val HARD: ByteArray = byteArrayOf(0x53, 0x00, 0x03, 0x06, 0x00, 0x5C, 0x16)
-
 /**查询软件版本**/
 val SOFT: ByteArray = byteArrayOf(0x53, 0x00, 0x03, 0x07, 0x00, 0x5D, 0x16)
-
-/** 软件版本 */
-@Volatile
-var softwareVersion: String? = null
-
-/** 硬件版本 */
-@Volatile
-var hardwareVersion: String? = null
 
 const val TEMP = "℃"
 const val VOLTAGE = "V"
 const val RH = "%RH"
-
 const val MIN_DATA_SIZE = 11
-
 enum class MainFunctionCode(byte: Byte) {
     READ(0x03), WRITE(0x10);
 }

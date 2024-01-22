@@ -5,46 +5,90 @@ import com.fazecast.jSerialComm.SerialPort
 import com.fazecast.jSerialComm.SerialPortEvent
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions
 import com.y.wirelesstemperaturemeasurement.TAG
+import com.y.wirelesstemperaturemeasurement.config.Config.readConfig
 import com.y.wirelesstemperaturemeasurement.data.parse.HARD
 import com.y.wirelesstemperaturemeasurement.data.parse.SOFT
 import com.y.wirelesstemperaturemeasurement.data.parse.dataParse
-import com.y.wirelesstemperaturemeasurement.data.parse.softwareVersion
 import com.y.wirelesstemperaturemeasurement.data.parse.toHexStrArray
+import com.y.wirelesstemperaturemeasurement.utils.baudRate
+import com.y.wirelesstemperaturemeasurement.utils.dataBits
+import com.y.wirelesstemperaturemeasurement.utils.flow
+import com.y.wirelesstemperaturemeasurement.utils.parity
+import com.y.wirelesstemperaturemeasurement.utils.stopBits
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
+
+val serialPorts: Array<SerialPort> = SerialPort.getCommPorts()
+val serialPortNames = serialPorts.map { it.systemPortName }
 
 @Volatile
-private lateinit var serialPort: SerialPort
-const val baudRate: Int = 115200
-const val dataBits: Int = 8
-const val stopBits: Int = SerialPort.ONE_STOP_BIT
-const val parity: Int = SerialPort.NO_PARITY
-fun writeData(bytes: ByteArray) {
-    serialPort.writeBytes(bytes, bytes.size)
+private var serialPort: SerialPort? = null
+private var serialNumberY: String = ""
+private var baudRateY: Int = 19200
+private var dataBitsY: Int = 8
+private var stopBitsY: Int = 1
+private var parityY: Int = 0
+private var flowY: Int = 0
+
+private fun read() {
+    serialNumberY = readConfig("串口号")
+    baudRateY = readConfig("波特率", "19200").baudRate()
+    dataBitsY = readConfig("数据位", "8").dataBits()
+    stopBitsY = readConfig("停止位", "1").stopBits()
+    parityY = readConfig("校验", "0").parity()
+    flowY = readConfig("流控", "0").flow()
 }
 
-fun connection(serial: String) {
-    serialPort = SerialPort.getCommPort(serial)
-    serialPort.setComPortParameters(baudRate, dataBits, stopBits, parity)
-    serialPort.addDataListener(SerialPortMessageListener)
-    serialPort.setComPortTimeouts(
-        SerialPort.TIMEOUT_READ_BLOCKING or SerialPort.TIMEOUT_WRITE_BLOCKING,
-        100, 100
+
+fun connection() {
+    StateViewModel.SerialPort = false
+    StateViewModel.SOFT=""
+    StateViewModel.HARD=""
+    read()
+    disConnection()
+    Log.d(
+        TAG,
+        "connection: 串口号: $serialNumberY 波特率: $baudRateY 数据位: $dataBitsY " +
+                "停止位: $stopBitsY 校验: $parityY 流控: $flowY"
     )
-    if (serialPort.openPort()) {
-        writeData(SOFT)
-        Thread.sleep(500)
-        if (softwareVersion != null) {
+    serialPort = serialPorts
+        .firstOrNull { serialNumberY == it.systemPortName }
+    serialPort?.apply {
+        Log.i(TAG, "connection: 设置参数")
+        setComPortParameters(baudRateY, dataBitsY, stopBitsY, parityY)
+        addDataListener(SerialPortMessageListener)
+        setFlowControl(flowY)
+        setComPortTimeouts(
+            SerialPort.TIMEOUT_READ_BLOCKING or SerialPort.TIMEOUT_WRITE_BLOCKING,
+            100, 100
+        )
+        if (openPort()) {
+            Log.d(TAG, "connection: 打开成功")
+            StateViewModel.SerialPort = true
+            writeData(SOFT)
             writeData(HARD)
-            Log.d(TAG, "connection: 串口初始化完成")
+//            Thread.sleep(500)
+//            if (StateViewModel.SOFT.isNotEmpty()) {
+//
+//                Log.d(TAG, "connection: 串口初始化完成")
+//            } else {
+//                removeDataListener()
+//                closePort()
+//            }
         }
     }
 }
 
 fun disConnection() {
-    serialPort.removeDataListener()
-    serialPort.closePort()
-    Log.d(TAG, "disConnection: 串口关闭")
+    serialPort?.apply {
+        removeDataListener()
+        closePort()
+        Log.d(TAG, "disConnection: 串口关闭")
+    }
 }
 
+fun writeData(bytes: ByteArray) {
+    serialPort?.writeBytes(bytes, bytes.size)
+}
 
 /**
  * 串口消息监听器

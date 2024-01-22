@@ -9,16 +9,21 @@ import androidx.lifecycle.ViewModel
 import com.y.wirelesstemperaturemeasurement.TAG
 
 object StateViewModel : ViewModel() {
+    //串口状态
+    var SerialPort by mutableStateOf(false)
+    //软件版本
+    var SOFT by mutableStateOf("")
+    //硬件版本
+    var HARD by mutableStateOf("")
+
     var audible by mutableStateOf(true)
         private set
     var sensor by mutableIntStateOf(0)
     var warn by mutableIntStateOf(0)
     var error by mutableIntStateOf(0)
-    //从配置文件中读取状态
     init {
-        Log.d(TAG, "ViewModel初始化+++++++++++++++++++")
+        Log.d(TAG, "ViewModel: ")
     }
-
     fun updateAudible() {
         audible = !audible
     }

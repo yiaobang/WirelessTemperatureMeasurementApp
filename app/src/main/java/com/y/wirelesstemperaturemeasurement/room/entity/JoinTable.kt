@@ -22,3 +22,4 @@ data class Device(
     @ColumnInfo(name = "sensor_type") val type: Byte,
     @ColumnInfo(name = "sensor_id") val id: Long = 0
 )
+

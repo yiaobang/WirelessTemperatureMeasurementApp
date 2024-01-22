@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate: ")
-       // enableEdgeToEdge()
+        // enableEdgeToEdge()
         initApp(applicationContext)
         setContent {
             NavHostViewModel.navHost(rememberNavController())
@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
             WirelessTemperatureMeasurementApp()
         }
     }
+
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart: ")

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.y.wirelesstemperaturemeasurement.ui.components.GridCards
 import com.y.wirelesstemperaturemeasurement.ui.components.TopBar
-import com.y.wirelesstemperaturemeasurement.viewmodel.DataViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
 
 @Composable
 fun UploadData() {
@@ -18,5 +18,5 @@ fun UploadData() {
 }
 @Composable
 fun UpLoadContent(paddingValues: PaddingValues) {
-    GridCards(paddingValues, DataViewModel.upLoadCards)
+    GridCards(paddingValues, NavHostViewModel.upLoadCards)
 }

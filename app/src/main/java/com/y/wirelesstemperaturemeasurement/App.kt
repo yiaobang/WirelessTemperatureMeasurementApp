@@ -1,6 +1,5 @@
 package com.y.wirelesstemperaturemeasurement
 
-import android.app.Application
 import android.content.Context
 import com.y.wirelesstemperaturemeasurement.config.Config
 import com.y.wirelesstemperaturemeasurement.data.listener.connection
@@ -19,8 +18,7 @@ fun initApp(context: Context) {
     //删除过期数据
     dataBase.sensorDataDao().deleteOldData(deleteTime)
     dataBase.sensorEventDao().deleteOldEvent(deleteTime)
-    //连接串口
-//    connection("ttyS1")
+    connection()
 }
 
 fun closeApp() {
