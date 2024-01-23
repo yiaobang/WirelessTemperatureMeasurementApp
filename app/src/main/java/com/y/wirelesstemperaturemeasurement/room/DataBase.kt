@@ -4,19 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.y.wirelesstemperaturemeasurement.room.dao.JoinTableDao
-import com.y.wirelesstemperaturemeasurement.room.dao.RegionDao
-import com.y.wirelesstemperaturemeasurement.room.dao.SensorDao
-import com.y.wirelesstemperaturemeasurement.room.dao.SensorDataDao
-import com.y.wirelesstemperaturemeasurement.room.dao.SensorEventDao
-import com.y.wirelesstemperaturemeasurement.room.entity.Region
-import com.y.wirelesstemperaturemeasurement.room.entity.Sensor
-import com.y.wirelesstemperaturemeasurement.room.entity.SensorData
-import com.y.wirelesstemperaturemeasurement.room.entity.SensorEvent
 
 private const val DATA_BESE_NAME = "wireless_temperature_measurement_database"
 @Database(
-    entities = [Region::class, Sensor::class, SensorEvent::class, SensorData::class],
+    entities = [Parts::class, Data::class, Event::class],
     version = 1
 )
 abstract class DataBase : RoomDatabase() {
@@ -36,9 +27,7 @@ abstract class DataBase : RoomDatabase() {
             return dataBase as DataBase
         }
     }
-    abstract fun regionDao(): RegionDao
-    abstract fun sensorDao(): SensorDao
-    abstract fun sensorEventDao(): SensorEventDao
-    abstract fun sensorDataDao(): SensorDataDao
-    abstract fun joinTableDao():JoinTableDao
+    abstract fun partsDao():PartsDao
+    abstract fun dataDao():DataDao
+    abstract fun eventDao():EventDao
 }

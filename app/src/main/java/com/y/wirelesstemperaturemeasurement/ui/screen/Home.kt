@@ -2,7 +2,9 @@ package com.y.wirelesstemperaturemeasurement.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,8 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.R
@@ -39,8 +43,56 @@ fun Home() {
 }
 
 @Composable
-fun HomeContent(paddingValues: PaddingValues) {
+private fun HomeContentTitle() {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .weight(0.4f)
+                .border(1.dp, Color.Black)
+                .wrapContentSize(Alignment.Center),
+            text = "设备名称"
+        )
+        Text(
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .weight(0.6f)
+                .border(1.dp, Color.Black)
+                .wrapContentSize(Alignment.Center),
+            text = "测温点名称"
+        )
+        Text(
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .weight(0.4f)
+                .border(1.dp, Color.Black)
+                .wrapContentSize(Alignment.Center),
+            text = "温度"
+        )
+        Text(
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .weight(0.4f)
+                .border(1.dp, Color.Black)
+                .wrapContentSize(Alignment.Center),
+            text = "电压/湿度"
+        )
+    }
+}
 
+@Composable
+fun HomeContent(paddingValues: PaddingValues) {
+    Column(
+        modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()
+    ) {
+        HomeContentTitle()
+    }
 }
 
 @Composable

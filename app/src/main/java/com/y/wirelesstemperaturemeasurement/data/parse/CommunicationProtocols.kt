@@ -1,5 +1,7 @@
 package com.y.wirelesstemperaturemeasurement.data.parse
 
+import java.nio.ByteBuffer
+
 /**
  * 数据字节格式顺序如下：
  * [0]：数据头		0x53
@@ -69,7 +71,7 @@ fun computeReplyData(data: ByteArray): ByteArray {
         data[7],
         data[8]
     )
-    return byteArrayOf(*byteArrayOf, calculateChecksumResult(byteArrayOf), 0x16)
+    return byteArrayOf+calculateChecksumResult(byteArrayOf)+0x16
 }
 
 /**
@@ -77,18 +79,22 @@ fun computeReplyData(data: ByteArray): ByteArray {
  * @param [data] 数据
  * @return [Byte]
  */
-fun calculateChecksumResult(data: ByteArray): Byte =
-    (data.sumOf { it.toInt() and 0xFF } and 0xFF).toByte()
+fun calculateChecksumResult(data: ByteArray): Byte = (data.sum() and 0xFF).toByte()
+  //  (data.sumOf { it.toInt() and 0xFF } and 0xFF).toByte()
 
 /**
  * 校验和验证
  * @param [data] 数据
  * @return [Boolean]
  */
-fun checksum(data: MutableList<Byte>): Boolean =
-    calculateChecksumResult(
-        data.subList(0, data.size - 2).toByteArray()
-    ) == (data[data.size - 2].toInt() and 0xFF).toByte()
+fun checksum(data: MutableList<Byte>): Boolean {
+    val calculatedChecksum = calculateChecksumResult(data.dropLast(2).toByteArray())
+    val providedChecksum = (data[data.size - 2].toInt() and 0xFF).toByte()
+    return calculatedChecksum == providedChecksum
+}
+//= calculateChecksumResult(
+//        data.subList(0, data.size - 2).toByteArray()
+//    ) == (data[data.size - 2].toInt() and 0xFF).toByte()
 
 /**
  * 解析模块地址(序列号)
@@ -97,31 +103,27 @@ fun checksum(data: MutableList<Byte>): Boolean =
  * @param [high] 地址中高字节
  * @param [maxHigh] 地址最高字节
  */
-fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): Long =
+fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): Int =
     restoreData(maxLow, low, high, maxHigh)
-
+/**
+ * 恢复数据
+ * @param [data] 数据
+ * @return [Long]
+ */
+//fun restoreData(vararg data: Byte) = data.foldIndexed(0L) { index, acc, byte -> acc or ((byte.toLong() and 0xFFL) shl (index * 8)) }
 /**
  * 解析温度(℃)
  * @param [low] 低
  * @param [high] 高
  */
-fun temperature(low: Byte, high: Byte): Double = restoreData(low, high).toDouble() / 100.0
+fun temperature(low: Byte, high: Byte): Double = restoreData(low, high)/ 100.0
 
 /**
  * 解析电压(mv)/ 或者湿度 RH
  * @param [low] 低
  * @param [high] 高
  */
-fun voltageRH(low: Byte, high: Byte): Int = restoreData(low, high).toInt()
-
-/**
- * 恢复数据
- * @param [data] 数据
- * @return [Long]
- */
-fun restoreData(vararg data: Byte): Long = data.foldIndexed(0L) { index, acc, byte ->
-    acc or ((byte.toLong() and 0xFFL) shl (index * 8))
-}
+fun voltageRH(low: Byte, high: Byte): Short = restoreData(low, high)
 
 /**
  * 解析软件版本或者硬件版本
@@ -136,4 +138,35 @@ fun version(data: ByteArray): String = String(data.sliceArray(5 until data.size 
  */
 fun ByteArray.toHexStrArray(): Array<String> {
     return this.map { byte -> "%02X".format(byte) }.toTypedArray()
+}
+fun restoreData(low: Byte, high: Byte): Short {
+    val buffer = ByteBuffer.allocate(2).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+    buffer.put(low)
+    buffer.put(high)
+    buffer.flip()
+    return buffer.getShort()
+}
+
+fun restoreData(byte1: Byte, byte2: Byte, byte3: Byte, byte4: Byte): Int {
+    val buffer = ByteBuffer.allocate(4).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+    buffer.put(byte1)
+    buffer.put(byte2)
+    buffer.put(byte3)
+    buffer.put(byte4)
+    buffer.flip()
+    return buffer.getInt()
+}
+
+fun restoreData(byte1: Byte, byte2: Byte, byte3: Byte, byte4: Byte, byte5: Byte, byte6: Byte, byte7: Byte, byte8: Byte): Long {
+    val buffer = ByteBuffer.allocate(8).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+    buffer.put(byte1)
+    buffer.put(byte2)
+    buffer.put(byte3)
+    buffer.put(byte4)
+    buffer.put(byte5)
+    buffer.put(byte6)
+    buffer.put(byte7)
+    buffer.put(byte8)
+    buffer.flip()
+    return buffer.getLong()
 }

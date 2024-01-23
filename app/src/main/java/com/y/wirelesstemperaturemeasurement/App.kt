@@ -6,6 +6,7 @@ import com.y.wirelesstemperaturemeasurement.data.listener.connection
 import com.y.wirelesstemperaturemeasurement.data.listener.disConnection
 import com.y.wirelesstemperaturemeasurement.room.DataBase
 import com.y.wirelesstemperaturemeasurement.utils.deleteTime
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 
 lateinit var dataBase: DataBase
 
@@ -18,6 +19,14 @@ fun initApp(context: Context) {
     //删除过期数据
     dataBase.sensorDataDao().deleteOldData(deleteTime)
     dataBase.sensorEventDao().deleteOldEvent(deleteTime)
+
+
+    //dataBase.sensorDao().delete()
+//    dataBase.sensorDao().addSensor(*sensors())
+//    dataBase.regionDao().addRegion(*regions())
+    timeSumInit()
+    val selectAllDevice = dataBase.joinTableDao().selectAllDevice()
+    StateViewModel.updateDevices(selectAllDevice)
     connection()
 }
 

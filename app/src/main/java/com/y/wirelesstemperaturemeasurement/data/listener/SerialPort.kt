@@ -87,6 +87,7 @@ fun disConnection() {
 }
 
 fun writeData(bytes: ByteArray) {
+    Log.d(TAG, "writeData: ${bytes.toHexStrArray().contentToString()}")
     serialPort?.writeBytes(bytes, bytes.size)
 }
 
@@ -114,8 +115,8 @@ object SerialPortMessageListener : SerialPortMessageListenerWithExceptions {
      */
     override fun serialEvent(event: SerialPortEvent) {
         val receivedData = event.receivedData
-        dataParse(receivedData)
         Log.d(TAG, "serialEvent: ${receivedData.toHexStrArray().contentToString()}")
+        dataParse(receivedData)
     }
 
     /**

@@ -9,26 +9,33 @@
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="D:\Language\Android\simulator\.android\avd\Pixel_8_API_31.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="881c9e36376700000000" />
                 </Key>
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-01-22T07:47:24.887684Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-01-23T07:42:27.473343100Z" />
         </State>
-      </entry>
-      <entry key="add()">
-        <State />
       </entry>
       <entry key="app">
         <State />
       </entry>
       <entry key="selectEverySensorNewData()">
-        <State />
-      </entry>
-      <entry key="serialNumberTest()">
-        <State />
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="SERIAL_NUMBER" />
+                  <value value="881c9e36376700000000" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-01-23T03:59:56.372671200Z" />
+        </State>
       </entry>
       <entry key="updateSensor()">
         <State />
