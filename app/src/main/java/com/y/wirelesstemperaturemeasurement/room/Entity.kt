@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.y.wirelesstemperaturemeasurement.data.parse.RH
+import com.y.wirelesstemperaturemeasurement.data.parse.TEMP
+import com.y.wirelesstemperaturemeasurement.data.parse.VOLTAGE
 
 /**
  * @author Y
@@ -18,7 +21,12 @@ import androidx.room.PrimaryKey
  */
 @Entity(
     tableName = "temperature_measuring_point",
-    indices = [Index(value = ["id", "device_name","serial_number"], unique = true)])
+    indices = [
+        Index(value = ["id"]),
+        Index(value = ["device_name"]),
+        Index(value = ["device_name", "parts_name"], unique = true),
+        Index(value = ["serial_number"], unique = true)]
+)
 data class Parts(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "device_name") val deviceName: String,
@@ -26,6 +34,7 @@ data class Parts(
     @ColumnInfo(name = "serial_number") val serialNumber: Int,
     @ColumnInfo(name = "sensor_type") val type: Byte
 )
+
 /**
  * @author Y
  * @date 2024/01/23
@@ -46,7 +55,11 @@ data class Parts(
         onDelete = ForeignKey.CASCADE
     )],
     tableName = "temperature_measuring_point_data",
-    indices = [Index(value = ["id","parts_id","time"])]
+    indices = [
+        Index(value = ["id"]),
+        Index(value = ["parts_id"]),
+        Index(value = ["time"])
+    ]
 )
 data class Data(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -57,6 +70,7 @@ data class Data(
     @ColumnInfo(name = "event_level") val eventLevel: Byte = 0,
     @ColumnInfo(name = "time") val time: Long = System.currentTimeMillis()
 )
+
 /**
  * @author Y
  * @date 2024/01/23
@@ -69,13 +83,19 @@ data class Data(
  * @param [eventLevel]事件类型
  * @param [time]时间
  */
-@Entity(foreignKeys = [ForeignKey(
-    entity = Parts::class,
-    parentColumns = ["id"],
-    childColumns = ["parts_id"],
-    onDelete = ForeignKey.CASCADE)],
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = Parts::class,
+        parentColumns = ["id"],
+        childColumns = ["parts_id"],
+        onDelete = ForeignKey.CASCADE
+    )],
     tableName = "temperature_measuring_point_event",
-    indices = [Index(value = ["id","parts_id","time"])]
+    indices = [
+        Index(value = ["id"]),
+        Index(value = ["parts_id"]),
+        Index(value = ["time"])
+    ]
 )
 data class Event(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -87,8 +107,22 @@ data class Event(
     @ColumnInfo(name = "time") val time: Long = System.currentTimeMillis()
 )
 
-
-data class  DataShow(
+/**
+ * @author Y
+ * @date 2024/01/24
+ * @constructor 创建[DataShow] 联合查询的时候使用
+ * @param [id] 主键
+ * @param [deviceName] 设备名称
+ * @param [partsName] 测温点名称
+ * @param [serialNumber] 传感器序列号
+ * @param [type] 传感器类型
+ * @param [temperature] 温度
+ * @param [voltageRH] 电压/湿度
+ * @param [rssi] 信号强度
+ * @param [eventLevel] 事件级别
+ * @param [time] 时间
+ */
+data class DataShow(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo(name = "device_name") val deviceName: String,
     @ColumnInfo(name = "parts_name") val partsName: String,
@@ -100,3 +134,23 @@ data class  DataShow(
     @ColumnInfo(name = "event_level") val eventLevel: Byte = 0,
     @ColumnInfo(name = "time") val time: Long = System.currentTimeMillis()
 )
+
+fun getTemperature(dataShow: DataShow?): String {
+    return if (dataShow == null) {
+        "--"
+    } else {
+        "${dataShow.temperature}$TEMP"
+    }
+}
+
+
+fun getVoltageRH(dataShow: DataShow?): String {
+    return if (dataShow == null) {
+        "--"
+    } else {
+        when (dataShow.type) {
+            1.toByte() -> "${dataShow.voltageRH / 100.0}$RH"
+            else -> "${dataShow.voltageRH / 1000.0}$VOLTAGE"
+        }
+    }
+}

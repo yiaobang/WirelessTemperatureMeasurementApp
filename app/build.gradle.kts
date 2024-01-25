@@ -51,11 +51,11 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST,io.netty.versions.properties}"
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
     //JNI
@@ -65,11 +65,6 @@ android {
 }
 
 dependencies {
-    //MQTT
-    implementation(libs.hivemq.mqtt.client)
-
-    retrofix(libs.android.retrostreams)
-    retrofix(libs.android.retrofuture)
 
     //串口
     implementation(libs.jSerialComm)

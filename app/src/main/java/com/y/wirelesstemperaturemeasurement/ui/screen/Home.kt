@@ -1,5 +1,6 @@
 package com.y.wirelesstemperaturemeasurement.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
@@ -31,15 +35,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.R
+import com.y.wirelesstemperaturemeasurement.TAG
+import com.y.wirelesstemperaturemeasurement.room.Parts
+import com.y.wirelesstemperaturemeasurement.room.getTemperature
+import com.y.wirelesstemperaturemeasurement.room.getVoltageRH
 import com.y.wirelesstemperaturemeasurement.ui.theme.ThemeColor
 import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.PARTS
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.SensorDataMap
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.updateData
+import java.lang.Thread.sleep
 
 @Composable
 fun Home() {
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = { HomeTopBar() },
         bottomBar = { HomeBottom() }) { paddingValues -> HomeContent(paddingValues) }
+    Thread {
+        while (true) {
+            updateData()
+            Log.e(TAG, "Home: 更新数据")
+            //30S一次
+            sleep(30000)
+        }
+    }.start()
 }
 
 @Composable
@@ -92,8 +112,80 @@ fun HomeContent(paddingValues: PaddingValues) {
             .fillMaxSize()
     ) {
         HomeContentTitle()
+        ShowData()
     }
 }
+
+@Composable
+private fun ShowData() {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        items(PARTS) {
+            Data(it)
+        }
+    }
+}
+
+@Composable
+private fun Data(parts: MutableList<Parts>) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height((22 * parts.size).dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            fontSize = 18.sp,
+            modifier = Modifier
+                .weight(0.4f)
+                .fillMaxHeight()
+                .border(1.dp, Color.Black)
+                .wrapContentSize(Alignment.Center),
+            text = parts[0].deviceName
+        )
+        Column(
+            Modifier
+                .weight(1.4f)
+                .fillMaxHeight()
+        ) {
+            parts.forEach { currentParts ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    Text(
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .weight(0.6f)
+                            .border(1.dp, Color.Black)
+                            .wrapContentSize(Alignment.Center),
+                        text = currentParts.partsName
+                    )
+                    Text(
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .weight(0.4f)
+                            .border(1.dp, Color.Black)
+                            .wrapContentSize(Alignment.Center),
+                        text = getTemperature(SensorDataMap[currentParts.serialNumber])
+                    )
+                    Text(
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .weight(0.4f)
+                            .border(1.dp, Color.Black)
+                            .wrapContentSize(Alignment.Center),
+                        text = getVoltageRH(SensorDataMap[currentParts.serialNumber])
+                    )
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun HomeTopBar() {
@@ -162,7 +254,7 @@ private fun SensorMapping() {
             modifier = Modifier
                 .height(30.dp)
                 .wrapContentSize(Alignment.Center),
-            text = "系统共接入${StateViewModel.sensor}个测温点"
+            text = "系统共接入${StateViewModel.partsNumber}个测温点"
         )
     }
 }
@@ -222,7 +314,7 @@ private fun EventMsg() {
             modifier = Modifier
                 .height(30.dp)
                 .wrapContentSize(Alignment.Center),
-            text = "${StateViewModel.sensor}条新事件消息"
+            text = "${StateViewModel.event}条新事件消息"
         )
     }
 }

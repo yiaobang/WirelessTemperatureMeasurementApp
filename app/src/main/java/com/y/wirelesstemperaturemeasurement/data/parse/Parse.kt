@@ -3,8 +3,9 @@ package com.y.wirelesstemperaturemeasurement.data.parse
 import android.util.Log
 import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.data.listener.writeData
-import com.y.wirelesstemperaturemeasurement.dataBase
-import com.y.wirelesstemperaturemeasurement.room.entity.SensorData
+import com.y.wirelesstemperaturemeasurement.room.DATE_DAO
+import com.y.wirelesstemperaturemeasurement.room.Data
+import com.y.wirelesstemperaturemeasurement.room.PARTS_DAO
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -14,12 +15,14 @@ import kotlinx.coroutines.launch
 private val replyMsg: MutableMap<Int, ByteArray> = mutableMapOf()
 
 val timeSum: MutableMap<Int, Long> = mutableMapOf()
+
 //数据缓存
 private val dataBuffer = mutableListOf<Byte>()
 fun dataParse(data: ByteArray) {
     dataBuffer.addAll(data.asList())
     examineData()
 }
+
 private fun examineData() {
     if (dataBuffer.firstOrNull() != 0x53.toByte()) {
         dataBuffer.clear()
@@ -34,7 +37,6 @@ private fun examineData() {
     if (dataBuffer.size == dataBuffer[4] + 7 && checksum(dataBuffer)) {
         parseData(dataBuffer.toByteArray())
         dataBuffer.clear()
-        Log.w(TAG, "传递,不在阻塞串口线程")
     }
 }
 
@@ -83,20 +85,16 @@ private fun tempHandler(msg: ByteArray) {
         replyMsg[serialNumber] = computeReplyData(msg)
     }
     replyMsg[serialNumber]?.let { writeData(it) }
-    Log.e(TAG, "$serialNumber : ${(System.currentTimeMillis()- timeSum[serialNumber]!!)/1000}秒")
+    Log.e(TAG, "$serialNumber : ${(System.currentTimeMillis() - timeSum[serialNumber]!!) / 1000}秒")
     timeSum[serialNumber] = System.currentTimeMillis()
     //TODO  传感器
-    val id = dataBase.sensorDao().selectId(serialNumber)
-    if (id != null) {
+    val partsId = PARTS_DAO.selectById(serialNumber)
+    if (partsId != null) {
         val newTemp = temperature(msg[9], msg[10])
         val newVoltageRH = voltageRH(msg[11], msg[12])
-        val sensorHistoryData = SensorData(
-            sensorId = id,
-            temperature = newTemp,
-            voltageRH = newVoltageRH,
-            rssi = msg[15]
-        )
-        Log.i(TAG, "添加历史数据: $sensorHistoryData")
-        dataBase.sensorDataDao().addSensorData(sensorHistoryData)
+        val newData =
+            Data(partsId = partsId, temperature = newTemp, voltageRH = newVoltageRH, rssi = msg[15])
+        DATE_DAO.insert(newData)
+        Log.i(TAG, "添加历史数据: $newData")
     }
 }

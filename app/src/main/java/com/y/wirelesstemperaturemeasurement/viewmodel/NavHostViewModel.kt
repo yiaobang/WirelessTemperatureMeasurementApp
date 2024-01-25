@@ -67,7 +67,7 @@ object NavHostViewModel : ViewModel() {
     val menuCards = arrayOf(
         CardInfo("Menu/EventData", R.drawable.logo_64, "事件"),
         CardInfo("Menu/HistoryData", R.drawable.logo_64, "历史数据"),
-        CardInfo("Menu/SensorMap", R.drawable.bbar_point, "传感器映射"),
+        CardInfo("Menu/SensorMap", R.drawable.logo_64, "设备映射"),
         CardInfo("Menu/UploadData", R.drawable.logo_64, "上传"),
         CardInfo("Menu/Settings", R.drawable.logo_64, "设置")
     )
