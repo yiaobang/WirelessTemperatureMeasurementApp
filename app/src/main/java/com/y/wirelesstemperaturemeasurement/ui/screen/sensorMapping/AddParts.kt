@@ -1,6 +1,5 @@
 package com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -22,23 +21,23 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
-import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.config.sensorType
-import com.y.wirelesstemperaturemeasurement.room.PARTS_DAO
 import com.y.wirelesstemperaturemeasurement.room.Parts
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
+import com.y.wirelesstemperaturemeasurement.utils.isID
+import com.y.wirelesstemperaturemeasurement.utils.isNumber
 import com.y.wirelesstemperaturemeasurement.utils.sensorType
-import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
+    var id by remember { mutableStateOf("") }
     var deviceName by remember { mutableStateOf("") }
     var partsName by remember { mutableStateOf("") }
     var serialNumber by remember { mutableStateOf("") }
@@ -67,23 +66,41 @@ fun AddParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                         TextField(
                             modifier = Modifier
                                 .fillMaxWidth(),
+                            label = { Text(text = "ID", fontSize = 10.sp) },
+                            value = id,
+                            onValueChange = {
+                                if (it.isID()) {
+                                    id = it
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                        )
+                        TextField(
+                            modifier = Modifier
+                                .fillMaxWidth(),
                             label = { Text(text = "设备名称", fontSize = 10.sp) },
                             value = deviceName,
-                            onValueChange = { deviceName = it },
+                            onValueChange = { deviceName = it.trim() },
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
                         )
-                        TextField(   modifier = Modifier
-                            .fillMaxWidth(),
+                        TextField(
+                            modifier = Modifier
+                                .fillMaxWidth(),
                             label = { Text(text = "测温点名称", fontSize = 10.sp) },
                             value = partsName,
-                            onValueChange = { partsName = it },
+                            onValueChange = { partsName = it.trim() },
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
                         )
-                        TextField(   modifier = Modifier
-                            .fillMaxWidth(),
+                        TextField(
+                            modifier = Modifier
+                                .fillMaxWidth(),
                             label = { Text(text = "传感器序列号", fontSize = 10.sp) },
                             value = serialNumber,
-                            onValueChange = { serialNumber = it },
+                            onValueChange = {
+                                if (it.isNumber()) {
+                                    serialNumber = it
+                                }
+                            },
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                         )
                         ExposedDropdownMenuBox(
@@ -91,7 +108,9 @@ fun AddParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                             onExpandedChange = { expanded = !expanded },
                         ) {
                             TextField(
-                                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
                                 readOnly = true,
                                 value = type,
                                 onValueChange = {},
@@ -127,25 +146,27 @@ fun AddParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                                try {
-                                    PARTS_DAO.insert(
-                                        Parts(
-                                            0,
-                                            deviceName.trim(),
-                                            partsName.trim(),
-                                            serialNumber.trim().toInt(),
-                                            type.sensorType()
-                                        )
-                                    )
-                                    StateViewModel.updateParts()
-                                    showToast(context, "添加成功")
-                                } catch (e: Exception) {
-                                    showToast(context, "添加失败")
-                                    Log.e(TAG, "AddParts: ", e)
-                                }
-                            update(false)
+                            if (id == "") {
+                                showToast(context, "ID不能为空")
+                            } else if (deviceName == "") {
+                                showToast(context, "设备名称不能为空")
+                            } else if (partsName == "") {
+                                showToast(context, "测温点名称不能为空")
+                            } else if (serialNumber == "") {
+                                showToast(context, "传感器序列号不能为空")
+                            } else {
+                                RoomViewModel.addParts(
+                                    Parts(
+                                        id.toInt(),
+                                        deviceName,
+                                        partsName,
+                                        serialNumber.toLong(),
+                                        type.sensorType()
+                                    ), context
+                                )
+                            }
+                            // update(false)
                             keyboardController?.hide()
-                            // Handle user input here
                         }
                     ) {
                         Text("OK")

@@ -22,19 +22,19 @@ import com.y.wirelesstemperaturemeasurement.data.parse.VOLTAGE
 @Entity(
     tableName = "temperature_measuring_point",
     indices = [
-        Index(value = ["id"]),
+        Index(value = ["parts_id"]),
         Index(value = ["device_name"]),
         Index(value = ["device_name", "parts_name"], unique = true),
         Index(value = ["serial_number"], unique = true)]
 )
 data class Parts(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = false)
+    @ColumnInfo(name = "parts_id") val id:Int,
     @ColumnInfo(name = "device_name") val deviceName: String,
     @ColumnInfo(name = "parts_name") val partsName: String,
-    @ColumnInfo(name = "serial_number") val serialNumber: Int,
+    @ColumnInfo(name = "serial_number") val serialNumber: Long,
     @ColumnInfo(name = "sensor_type") val type: Byte
 )
-
 /**
  * @author Y
  * @date 2024/01/23
@@ -50,7 +50,7 @@ data class Parts(
 @Entity(
     foreignKeys = [ForeignKey(
         entity = Parts::class,
-        parentColumns = ["id"],
+        parentColumns = ["parts_id"],
         childColumns = ["parts_id"],
         onDelete = ForeignKey.CASCADE
     )],
@@ -86,7 +86,7 @@ data class Data(
 @Entity(
     foreignKeys = [ForeignKey(
         entity = Parts::class,
-        parentColumns = ["id"],
+        parentColumns = ["parts_id"],
         childColumns = ["parts_id"],
         onDelete = ForeignKey.CASCADE
     )],
@@ -123,10 +123,10 @@ data class Event(
  * @param [time] 时间
  */
 data class DataShow(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(name = "parts_id") val id: Int = 0,
     @ColumnInfo(name = "device_name") val deviceName: String,
     @ColumnInfo(name = "parts_name") val partsName: String,
-    @ColumnInfo(name = "serial_number") val serialNumber: Int,
+    @ColumnInfo(name = "serial_number") val serialNumber: Long,
     @ColumnInfo(name = "sensor_type") val type: Byte,
     @ColumnInfo(name = "temperature") val temperature: Double = 0.0,
     @ColumnInfo(name = "voltage_rh") val voltageRH: Short = 0,

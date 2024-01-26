@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -30,12 +29,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.config.sensorType
-import com.y.wirelesstemperaturemeasurement.room.PARTS_DAO
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
-import com.y.wirelesstemperaturemeasurement.utils.sensorType
-import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
     var oldSerialNumber by remember { mutableStateOf("") }
@@ -66,7 +63,7 @@ fun UpdateParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                                 .fillMaxWidth(),
                             label = { Text(text = "旧的传感器序列号", fontSize = 10.sp) },
                             value = oldSerialNumber,
-                            onValueChange = { oldSerialNumber = it },
+                            onValueChange = { oldSerialNumber = it.trim() },
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                         )
                         TextField(
@@ -74,7 +71,7 @@ fun UpdateParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                                 .fillMaxWidth(),
                             label = { Text(text = "新的传感器序列号", fontSize = 10.sp) },
                             value = newSerialNumber,
-                            onValueChange = { newSerialNumber = it },
+                            onValueChange = { newSerialNumber = it.trim() },
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                         )
                         ExposedDropdownMenuBox(
@@ -121,12 +118,14 @@ fun UpdateParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                     TextButton(
                         onClick = {
                             try {
-                                PARTS_DAO.updateParts(
-                                    oldSerialNumber.trim().toInt(),
-                                    newSerialNumber.trim().toInt(),
-                                    type.sensorType()
-                                )
-                                StateViewModel.updateParts()
+
+                                //TODO
+//                                PARTS_DAO.updateParts(
+//                                    oldSerialNumber.trim().toLong(),
+//                                    newSerialNumber.trim().toLong(),
+//                                    type.sensorType()
+//                                )
+                                RoomViewModel.updateParts()
                                 showToast(context, "传感器更换成功")
                             } catch (e: Exception) {
                                 showToast(context, "传感器更换失败")

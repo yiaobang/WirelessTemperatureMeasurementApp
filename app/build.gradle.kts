@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    id("com.github.sgtsilvio.gradle.android-retrofix") version "0.5.0"
-    id("kotlin-kapt")
-
+    id("com.google.devtools.ksp")
 }
-
+ksp{
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+}
 android {
     namespace = "com.y.wirelesstemperaturemeasurement"
     compileSdk = 34
@@ -21,14 +22,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += mapOf(
-                    "room.schemaLocation" to "$projectDir/schemas",
-                    "room.incremental" to "true"
-                )
-            }
-        }
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments += mapOf(
+//                    "room.schemaLocation" to "$projectDir/schemas",
+//                    "room.incremental" to "true"
+//                )
+//            }
+//        }
     }
 
     buildTypes {
@@ -75,7 +76,7 @@ dependencies {
     //SQLite 数据库
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.room.compiler)
-    kapt(libs.androidx.room.room.compiler)
+    ksp(libs.androidx.room.room.compiler)
     implementation(libs.androidx.room.ktx)
     testImplementation(libs.androidx.room.testing)
 

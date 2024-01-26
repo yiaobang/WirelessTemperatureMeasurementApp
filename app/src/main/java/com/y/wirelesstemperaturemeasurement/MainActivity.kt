@@ -8,7 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.navigation.compose.rememberNavController
+import com.y.wirelesstemperaturemeasurement.config.Config
+import com.y.wirelesstemperaturemeasurement.room.DataBase
 import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.WirelessTemperatureMeasurementApp
 
 const val TAG = "无线温湿度监测"
@@ -17,11 +20,13 @@ var WIDTH = 0f
 var HEIGHT = 0f
 
 class MainActivity : ComponentActivity() {
+    private val database: DataBase by lazy { DataBase.initDataBase(applicationContext) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate: ")
         // enableEdgeToEdge()
-        initApp(applicationContext)
+        Config.initialize(applicationContext)
+        RoomViewModel.initRoomViewModel(database = database)
         setContent {
             NavHostViewModel.navHost(rememberNavController())
             ReadWidthHeight()
@@ -51,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        closeApp()
+        RoomViewModel.closeDataBase()
         Log.d(TAG, "onDestroy: ")
     }
 

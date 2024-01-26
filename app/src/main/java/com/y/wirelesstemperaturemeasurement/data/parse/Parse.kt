@@ -3,18 +3,16 @@ package com.y.wirelesstemperaturemeasurement.data.parse
 import android.util.Log
 import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.data.listener.writeData
-import com.y.wirelesstemperaturemeasurement.room.DATE_DAO
-import com.y.wirelesstemperaturemeasurement.room.Data
-import com.y.wirelesstemperaturemeasurement.room.PARTS_DAO
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 //需要回复的数据
-private val replyMsg: MutableMap<Int, ByteArray> = mutableMapOf()
+private val replyMsg: MutableMap<Long, ByteArray> = mutableMapOf()
 
-val timeSum: MutableMap<Int, Long> = mutableMapOf()
+val timeSum: MutableMap<Long, Long> = mutableMapOf()
 
 //数据缓存
 private val dataBuffer = mutableListOf<Byte>()
@@ -80,21 +78,12 @@ private fun errorHandler(bytes: ByteArray) {
 }
 
 private fun tempHandler(msg: ByteArray) {
-    val serialNumber = address(msg[5], msg[6], msg[7], msg[8])
+    val serialNumber = address(msg[5], msg[6], msg[7], msg[8]).toLong()
     if (!replyMsg.containsKey(serialNumber)) {
         replyMsg[serialNumber] = computeReplyData(msg)
     }
     replyMsg[serialNumber]?.let { writeData(it) }
     Log.e(TAG, "$serialNumber : ${(System.currentTimeMillis() - timeSum[serialNumber]!!) / 1000}秒")
     timeSum[serialNumber] = System.currentTimeMillis()
-    //TODO  传感器
-    val partsId = PARTS_DAO.selectById(serialNumber)
-    if (partsId != null) {
-        val newTemp = temperature(msg[9], msg[10])
-        val newVoltageRH = voltageRH(msg[11], msg[12])
-        val newData =
-            Data(partsId = partsId, temperature = newTemp, voltageRH = newVoltageRH, rssi = msg[15])
-        DATE_DAO.insert(newData)
-        Log.i(TAG, "添加历史数据: $newData")
-    }
+    RoomViewModel.addPartsData(serialNumber,msg)
 }

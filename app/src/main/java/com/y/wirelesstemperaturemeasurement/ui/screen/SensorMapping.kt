@@ -17,11 +17,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
@@ -47,6 +47,7 @@ import com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping.DeleteParts
 import com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping.UpdateParts
 import com.y.wirelesstemperaturemeasurement.ui.theme.ThemeColor
 import com.y.wirelesstemperaturemeasurement.utils.sensorType
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -99,14 +100,20 @@ fun FloatingActionButton() {
             ShuXian()
             FloatingActionButtonItem(Icons.Default.Refresh, "Refresh") {
                 expand = false
-                StateViewModel.updateParts()
+                RoomViewModel.updateParts()
             }
             ShuXian()
-            FloatingActionButtonItem(Icons.Default.KeyboardArrowRight, "KeyboardArrowRight") {
+            FloatingActionButtonItem(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                "KeyboardArrowRight"
+            ) {
                 expand = false
             }
         } else {
-            FloatingActionButtonItem(Icons.Default.KeyboardArrowLeft, "expand") { expand = true }
+            FloatingActionButtonItem(
+                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                "expand"
+            ) { expand = true }
         }
     }
 }
@@ -156,6 +163,15 @@ private fun Title() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
+                .weight(0.2f)
+                .border(1.dp, Color.Black)
+                .wrapContentSize(Alignment.Center),
+            text = "ID"
+        )
+        Text(
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
                 .weight(0.4f)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
@@ -174,7 +190,7 @@ private fun Title() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .weight(0.4f)
+                .weight(0.3f)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "传感器序列号"
@@ -183,7 +199,7 @@ private fun Title() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .weight(0.3f)
+                .weight(0.25f)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "传感器类型"
@@ -218,6 +234,21 @@ private fun Parts(parts: MutableList<Parts>) {
             .height((22 * parts.size).dp),
         horizontalArrangement = Arrangement.Center
     ) {
+        Column(
+            Modifier
+                .weight(0.2f)
+                .fillMaxHeight()
+        ) {
+            parts.forEach {
+                Text(
+                    fontSize = 18.sp,
+                    modifier = Modifier.fillMaxWidth()
+                        .border(1.dp, Color.Black)
+                        .wrapContentSize(Alignment.Center),
+                    text = it.id.toString()
+                )
+            }
+        }
         Text(
             fontSize = 18.sp,
             modifier = Modifier
@@ -229,7 +260,7 @@ private fun Parts(parts: MutableList<Parts>) {
         )
         Column(
             Modifier
-                .weight(1.2f)
+                .weight(1.05f)
                 .fillMaxHeight()
         ) {
             parts.forEach {
@@ -249,7 +280,7 @@ private fun Parts(parts: MutableList<Parts>) {
                     Text(
                         fontSize = 18.sp,
                         modifier = Modifier
-                            .weight(0.4f)
+                            .weight(0.3f)
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = it.serialNumber.toString()
@@ -257,7 +288,7 @@ private fun Parts(parts: MutableList<Parts>) {
                     Text(
                         fontSize = 18.sp,
                         modifier = Modifier
-                            .weight(0.3f)
+                            .weight(0.25f)
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = it.type.sensorType()

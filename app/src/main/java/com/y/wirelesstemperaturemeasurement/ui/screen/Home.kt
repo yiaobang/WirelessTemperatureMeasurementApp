@@ -1,6 +1,5 @@
 package com.y.wirelesstemperaturemeasurement.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.R
-import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.room.Parts
 import com.y.wirelesstemperaturemeasurement.room.getTemperature
 import com.y.wirelesstemperaturemeasurement.room.getVoltageRH
@@ -44,27 +42,25 @@ import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.PARTS
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.SensorDataMap
-import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.updateData
-import java.lang.Thread.sleep
 
 @Composable
 fun Home() {
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = { HomeTopBar() },
         bottomBar = { HomeBottom() }) { paddingValues -> HomeContent(paddingValues) }
-    Thread {
-        while (true) {
-            updateData()
-            Log.e(TAG, "Home: 更新数据")
-            //30S一次
-            sleep(30000)
-        }
-    }.start()
 }
-
 @Composable
 private fun HomeContentTitle() {
     Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .weight(0.2f)
+                .border(1.dp, Color.Black)
+                .wrapContentSize(Alignment.Center),
+            text = "ID"
+        )
         Text(
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
@@ -78,7 +74,7 @@ private fun HomeContentTitle() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .weight(0.6f)
+                .weight(0.5f)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "测温点名称"
@@ -87,7 +83,7 @@ private fun HomeContentTitle() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .weight(0.4f)
+                .weight(0.3f)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "温度"
@@ -96,7 +92,7 @@ private fun HomeContentTitle() {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .weight(0.4f)
+                .weight(0.25f)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "电压/湿度"
@@ -136,6 +132,21 @@ private fun Data(parts: MutableList<Parts>) {
             .height((22 * parts.size).dp),
         horizontalArrangement = Arrangement.Center
     ) {
+        Column(
+            Modifier
+                .weight(0.2f)
+                .fillMaxHeight()
+        ) {
+            parts.forEach {
+                Text(
+                    fontSize = 18.sp,
+                    modifier = Modifier.fillMaxWidth()
+                        .border(1.dp, Color.Black)
+                        .wrapContentSize(Alignment.Center),
+                    text = it.id.toString()
+                )
+            }
+        }
         Text(
             fontSize = 18.sp,
             modifier = Modifier
@@ -147,7 +158,7 @@ private fun Data(parts: MutableList<Parts>) {
         )
         Column(
             Modifier
-                .weight(1.4f)
+                .weight(1.05f)
                 .fillMaxHeight()
         ) {
             parts.forEach { currentParts ->
@@ -159,7 +170,7 @@ private fun Data(parts: MutableList<Parts>) {
                     Text(
                         fontSize = 18.sp,
                         modifier = Modifier
-                            .weight(0.6f)
+                            .weight(0.5f)
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = currentParts.partsName
@@ -167,7 +178,7 @@ private fun Data(parts: MutableList<Parts>) {
                     Text(
                         fontSize = 18.sp,
                         modifier = Modifier
-                            .weight(0.4f)
+                            .weight(0.3f)
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = getTemperature(SensorDataMap[currentParts.serialNumber])
@@ -175,7 +186,7 @@ private fun Data(parts: MutableList<Parts>) {
                     Text(
                         fontSize = 18.sp,
                         modifier = Modifier
-                            .weight(0.4f)
+                            .weight(0.25f)
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = getVoltageRH(SensorDataMap[currentParts.serialNumber])
@@ -243,7 +254,7 @@ private fun HomeBottom() {
 @Composable
 private fun SensorMapping() {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { }) {
+        IconButton(onClick = { NavHostViewModel.navigate("Menu/SensorMap")}) {
             Image(
                 modifier = Modifier.size(30.dp),
                 painter = painterResource(R.drawable.bbar_point),

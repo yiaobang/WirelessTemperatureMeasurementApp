@@ -1,13 +1,11 @@
 package com.y.wirelesstemperaturemeasurement.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.y.wirelesstemperaturemeasurement.R
-import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.ui.CardInfo
 import com.y.wirelesstemperaturemeasurement.ui.screen.EventData
 import com.y.wirelesstemperaturemeasurement.ui.screen.HistoryData
@@ -59,9 +57,6 @@ object NavHostViewModel : ViewModel() {
     }
     fun popBackStack() {
         navHostController.popBackStack()
-    }
-    init {
-        Log.d(TAG, "ViewModel: ")
     }
     //菜单栏内容
     val menuCards = arrayOf(

@@ -6,11 +6,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 
-lateinit var DATA_BASE: DataBase
-lateinit var PARTS_DAO: PartsDao
-lateinit var DATE_DAO: DataDao
-lateinit var EVENT_DAO: EventDao
-lateinit var JOINT_DAO: JointDao
 
 @Database(
     entities = [Parts::class, Data::class, Event::class],
@@ -29,8 +24,9 @@ abstract class DataBase : RoomDatabase() {
                             DataBase::class.java,
                             DATA_BESE_NAME
                         )
+                            //.fallbackToDestructiveMigration()
                             //允许在主线程使用数据库
-                            .allowMainThreadQueries()
+                            //.allowMainThreadQueries()
                             .build()
                     }
                 }

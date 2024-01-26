@@ -40,7 +40,6 @@ private fun read() {
 
 
 fun connection() {
-    StateViewModel.SerialPort = false
     StateViewModel.SOFT=""
     StateViewModel.HARD=""
     read()
@@ -63,7 +62,6 @@ fun connection() {
         )
         if (openPort()) {
             Log.d(TAG, "connection: 打开成功")
-            StateViewModel.SerialPort = true
             writeData(SOFT)
             writeData(HARD)
 //            Thread.sleep(500)

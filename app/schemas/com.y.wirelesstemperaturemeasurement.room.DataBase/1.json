@@ -2,15 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "3c3ba5b5d618339452abacc285b9b34a",
+    "identityHash": "2abf0cdcfbf2dce0ede09aa524520c9b",
     "entities": [
       {
         "tableName": "temperature_measuring_point",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `device_name` TEXT NOT NULL, `parts_name` TEXT NOT NULL, `serial_number` INTEGER NOT NULL, `sensor_type` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`parts_id` INTEGER NOT NULL, `device_name` TEXT NOT NULL, `parts_name` TEXT NOT NULL, `serial_number` INTEGER NOT NULL, `sensor_type` INTEGER NOT NULL, PRIMARY KEY(`parts_id`))",
         "fields": [
           {
             "fieldPath": "id",
-            "columnName": "id",
+            "columnName": "parts_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -40,20 +40,20 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
-            "id"
+            "parts_id"
           ]
         },
         "indices": [
           {
-            "name": "index_temperature_measuring_point_id",
+            "name": "index_temperature_measuring_point_parts_id",
             "unique": false,
             "columnNames": [
-              "id"
+              "parts_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_temperature_measuring_point_id` ON `${TABLE_NAME}` (`id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_temperature_measuring_point_parts_id` ON `${TABLE_NAME}` (`parts_id`)"
           },
           {
             "name": "index_temperature_measuring_point_device_name",
@@ -88,7 +88,7 @@
       },
       {
         "tableName": "temperature_measuring_point_data",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parts_id` INTEGER NOT NULL, `temperature` REAL NOT NULL, `voltage_rh` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `event_level` INTEGER NOT NULL, `time` INTEGER NOT NULL, FOREIGN KEY(`parts_id`) REFERENCES `temperature_measuring_point`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parts_id` INTEGER NOT NULL, `temperature` REAL NOT NULL, `voltage_rh` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `event_level` INTEGER NOT NULL, `time` INTEGER NOT NULL, FOREIGN KEY(`parts_id`) REFERENCES `temperature_measuring_point`(`parts_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -177,14 +177,14 @@
               "parts_id"
             ],
             "referencedColumns": [
-              "id"
+              "parts_id"
             ]
           }
         ]
       },
       {
         "tableName": "temperature_measuring_point_event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parts_id` INTEGER NOT NULL, `temperature` REAL NOT NULL, `voltage_rh` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `event_level` INTEGER NOT NULL, `time` INTEGER NOT NULL, FOREIGN KEY(`parts_id`) REFERENCES `temperature_measuring_point`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parts_id` INTEGER NOT NULL, `temperature` REAL NOT NULL, `voltage_rh` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `event_level` INTEGER NOT NULL, `time` INTEGER NOT NULL, FOREIGN KEY(`parts_id`) REFERENCES `temperature_measuring_point`(`parts_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -273,7 +273,7 @@
               "parts_id"
             ],
             "referencedColumns": [
-              "id"
+              "parts_id"
             ]
           }
         ]
@@ -282,7 +282,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3c3ba5b5d618339452abacc285b9b34a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2abf0cdcfbf2dce0ede09aa524520c9b')"
     ]
   }
 }

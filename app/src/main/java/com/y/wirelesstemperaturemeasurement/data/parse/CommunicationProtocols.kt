@@ -103,8 +103,7 @@ fun checksum(data: MutableList<Byte>): Boolean {
  * @param [high] 地址中高字节
  * @param [maxHigh] 地址最高字节
  */
-fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): Int =
-    restoreData(maxLow, low, high, maxHigh)
+fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): UInt = restoreData(maxLow, low, high, maxHigh).toUInt()
 /**
  * 恢复数据
  * @param [data] 数据

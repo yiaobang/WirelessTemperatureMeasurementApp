@@ -1,30 +1,16 @@
 package com.y.wirelesstemperaturemeasurement
 
-import android.content.Context
-import android.util.Log
-import com.y.wirelesstemperaturemeasurement.config.Config
-import com.y.wirelesstemperaturemeasurement.data.listener.connection
-import com.y.wirelesstemperaturemeasurement.data.listener.disConnection
-import com.y.wirelesstemperaturemeasurement.room.DATA_BASE
-import com.y.wirelesstemperaturemeasurement.room.DATE_DAO
-import com.y.wirelesstemperaturemeasurement.room.DataBase.Companion.initDataBase
-import com.y.wirelesstemperaturemeasurement.room.EVENT_DAO
-import com.y.wirelesstemperaturemeasurement.room.JOINT_DAO
-import com.y.wirelesstemperaturemeasurement.room.PARTS_DAO
-import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
-
-
-fun initApp(context: Context) {
-    Config.initialize(context)
-    DATA_BASE = initDataBase(context)
-    PARTS_DAO = DATA_BASE.partsDao()
-    DATE_DAO = DATA_BASE.dataDao()
-    EVENT_DAO = DATA_BASE.eventDao()
-    JOINT_DAO = DATA_BASE.jointDao()
-    //删除30天前的数据
-    DATE_DAO.deleteOldData()
-    EVENT_DAO.deleteOldEvent()
-    timeSumInit()
+//fun initApp(context: Context) {
+//    Config.initialize(context)
+//    //DATA_BASE = initDataBase(context)
+//    PARTS_DAO = database.partsDao()
+//    DATE_DAO = database.dataDao()
+//    EVENT_DAO = database.eventDao()
+//    JOINT_DAO = database.jointDao()
+//    //删除30天前的数据
+//    DATE_DAO.deleteOldData()
+//    EVENT_DAO.deleteOldEvent()
+//    timeSumInit()
 //    PARTS_DAO.insert(
 //        Parts(0, "空调", "1911036766", 1911036766, 0),
 //        Parts(0, "空调", "1911036771", 1911036771, 0),
@@ -40,17 +26,16 @@ fun initApp(context: Context) {
 //        Parts(0, "自由移动", "2007271009", 2007271009, 1),
 //        Parts(0, "自由移动", "2007271010", 2007271010, 1)
 //    )
-
-
-
-
-
-    StateViewModel.updateParts()
-    PARTS_DAO.selectAllParts().forEach { Log.d(TAG, "initApp: $it") }
-    connection()
-}
-
-fun closeApp() {
-    DATA_BASE.close()
-    disConnection()
-}
+//
+//    StateViewModel.updateParts()
+//    PARTS_DAO.selectAllParts().forEach { Log.d(TAG, "initApp: $it") }
+//    connection()
+//    Thread {
+//        while (true) {
+//            StateViewModel.updateData()
+//            Log.e(TAG, "Home: 更新数据")
+//            //30S一次
+//            Thread.sleep(30000)
+//        }
+//    }.start()
+//}
