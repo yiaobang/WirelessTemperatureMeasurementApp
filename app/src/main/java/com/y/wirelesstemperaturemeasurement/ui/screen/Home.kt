@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -39,6 +40,7 @@ import com.y.wirelesstemperaturemeasurement.room.getTemperature
 import com.y.wirelesstemperaturemeasurement.room.getVoltageRH
 import com.y.wirelesstemperaturemeasurement.ui.theme.ThemeColor
 import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.PARTS
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.SensorDataMap
@@ -49,6 +51,7 @@ fun Home() {
         topBar = { HomeTopBar() },
         bottomBar = { HomeBottom() }) { paddingValues -> HomeContent(paddingValues) }
 }
+
 @Composable
 private fun HomeContentTitle() {
     Row(modifier = Modifier.fillMaxWidth()) {
@@ -57,15 +60,17 @@ private fun HomeContentTitle() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.2f)
+                .height(30.dp)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
-            text = "ID"
+            text = "id"
         )
         Text(
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.4f)
+                .height(30.dp)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "设备名称"
@@ -75,6 +80,7 @@ private fun HomeContentTitle() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.5f)
+                .height(30.dp)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "测温点名称"
@@ -84,6 +90,7 @@ private fun HomeContentTitle() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.3f)
+                .height(30.dp)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "温度"
@@ -93,6 +100,7 @@ private fun HomeContentTitle() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.25f)
+                .height(30.dp)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
             text = "电压/湿度"
@@ -129,7 +137,7 @@ private fun Data(parts: MutableList<Parts>) {
     Row(
         Modifier
             .fillMaxWidth()
-            .height((22 * parts.size).dp),
+            .height((24 * parts.size).dp),
         horizontalArrangement = Arrangement.Center
     ) {
         Column(
@@ -140,7 +148,9 @@ private fun Data(parts: MutableList<Parts>) {
             parts.forEach {
                 Text(
                     fontSize = 18.sp,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
                         .border(1.dp, Color.Black)
                         .wrapContentSize(Alignment.Center),
                     text = it.id.toString()
@@ -254,7 +264,7 @@ private fun HomeBottom() {
 @Composable
 private fun SensorMapping() {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { NavHostViewModel.navigate("Menu/SensorMap")}) {
+        IconButton(onClick = { NavHostViewModel.navigate("Menu/SensorMap") }) {
             Image(
                 modifier = Modifier.size(30.dp),
                 painter = painterResource(R.drawable.bbar_point),
@@ -314,10 +324,10 @@ private fun ErrorMsg() {
 @Composable
 private fun EventMsg() {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { }) {
-            Image(
+        IconButton(onClick = { RoomViewModel.updateData()}) {
+            Icon(
                 modifier = Modifier.size(30.dp),
-                painter = painterResource(R.drawable.bbar_msg),
+                imageVector = Icons.Default.Refresh,
                 contentDescription = ""
             )
         }
@@ -325,7 +335,7 @@ private fun EventMsg() {
             modifier = Modifier
                 .height(30.dp)
                 .wrapContentSize(Alignment.Center),
-            text = "${StateViewModel.event}条新事件消息"
+            text = "最近更新:${StateViewModel.dataTime}"
         )
     }
 }

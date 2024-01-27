@@ -15,27 +15,50 @@ interface PartsDao {
     @Insert
     suspend fun insert(vararg parts: Parts)
 
-    /**
-     * 更换传感器
-     * @param [oldSerialNumber] 旧的传感器序列号
-     * @param [newSerialNumber] 新的传感器序列号
-     * @param [type] 新的传感器类型
-     */
-    @Query("UPDATE temperature_measuring_point SET serial_number = :newSerialNumber, sensor_type = :type WHERE serial_number = :oldSerialNumber ")
-    suspend fun updateParts(oldSerialNumber: Long, newSerialNumber: Long, type: Byte)
+
 
     /**
-     * 按照传感器删除测温点
-     * @param [serialNumber] 传感器序列号
+     * 更新测温点
+     * @param [id] 原始ID
+     * @param [newId] 新的ID
+     * @param [deviceName] 新的设备名称
+     * @param [partsName] 新的测温点名称
+     * @param [serialNumber] 新的序列号
+     * @param [type] 新的传感器类型
      */
-    @Query("DELETE FROM temperature_measuring_point WHERE serial_number=:serialNumber")
-    suspend fun delete(serialNumber: Long)
+    @Query(
+        "UPDATE temperature_measuring_point " +
+                "SET parts_id=:newId," +
+                "device_name=:deviceName," +
+                "parts_name=:partsName," +
+                "serial_number=:serialNumber," +
+                "sensor_type=:type " +
+                "WHERE parts_id=:id"
+    )
+    suspend fun update(
+        id: Int,
+        newId: Int,
+        deviceName: String,
+        partsName: String,
+        serialNumber: Long,
+        type: Byte
+    )
 
     @Query("SELECT * FROM temperature_measuring_point WHERE parts_id = :id")
     suspend fun selectId(id: Int): Parts?
+    @Query("DELETE FROM temperature_measuring_point WHERE parts_id = :id")
+    suspend fun deleteId(id:Int)
+    @Query("SELECT * FROM temperature_measuring_point WHERE serial_number=:serialNumber")
+    suspend fun selectSensor(serialNumber: Long): Parts?
+
 
     @Query("SELECT * FROM temperature_measuring_point WHERE parts_id=:id OR (device_name=:deviceName AND parts_name=:partsName) OR serial_number=:serialNumber")
-    suspend fun selectParts(id:Int,deviceName: String,partsName: String,serialNumber: Long):Parts?
+    suspend fun selectParts(
+        id: Int,
+        deviceName: String,
+        partsName: String,
+        serialNumber: Long
+    ): List<Parts>?
 
     /**
      * 根据传感器序列号查询是否存在测温点

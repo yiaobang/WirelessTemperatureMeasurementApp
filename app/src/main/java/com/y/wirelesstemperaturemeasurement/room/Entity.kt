@@ -29,12 +29,13 @@ import com.y.wirelesstemperaturemeasurement.data.parse.VOLTAGE
 )
 data class Parts(
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name = "parts_id") val id:Int,
-    @ColumnInfo(name = "device_name") val deviceName: String,
-    @ColumnInfo(name = "parts_name") val partsName: String,
-    @ColumnInfo(name = "serial_number") val serialNumber: Long,
-    @ColumnInfo(name = "sensor_type") val type: Byte
+    @ColumnInfo(name = "parts_id") var id: Int,
+    @ColumnInfo(name = "device_name") var deviceName: String,
+    @ColumnInfo(name = "parts_name") var partsName: String,
+    @ColumnInfo(name = "serial_number") var serialNumber: Long,
+    @ColumnInfo(name = "sensor_type") var type: Byte
 )
+
 /**
  * @author Y
  * @date 2024/01/23
@@ -153,4 +154,14 @@ fun getVoltageRH(dataShow: DataShow?): String {
             else -> "${dataShow.voltageRH / 1000.0}$VOLTAGE"
         }
     }
+}
+
+fun List<Parts>.haveId(id: Int): Boolean {
+    this.forEach { if (it.id == id) return true }
+    return false
+}
+
+fun List<Parts>.haveSerialNumber(serialNumber: Long): Boolean {
+    this.forEach { if (it.serialNumber == serialNumber) return true }
+    return false
 }

@@ -1,6 +1,5 @@
 package com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -23,133 +22,171 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
-import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.config.sensorType
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
+import com.y.wirelesstemperaturemeasurement.utils.isID
+import com.y.wirelesstemperaturemeasurement.utils.isNumber
+import com.y.wirelesstemperaturemeasurement.utils.sensorType
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
-    var oldSerialNumber by remember { mutableStateOf("") }
-    var newSerialNumber by remember { mutableStateOf("") }
+    var oldId by remember { mutableStateOf("") }
+    var id by remember { mutableStateOf("") }
+    var deviceName by remember { mutableStateOf("") }
+    var partsName by remember { mutableStateOf("") }
+    var serialNumber by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(sensorType[0]) }
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var expanded by remember { mutableStateOf(false) }
     Column {
         if (isDialogVisible) {
-            AlertDialog(
-                onDismissRequest = {
-                    update(false)
-                    keyboardController?.hide()
-                },
-                title = {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentSize(Alignment.Center),
-                        text = "修改测温点"
-                    )
-                },
-                text = {
-                    Column(Modifier.verticalScroll(rememberScrollState())) {
-                        TextField(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            label = { Text(text = "旧的传感器序列号", fontSize = 10.sp) },
-                            value = oldSerialNumber,
-                            onValueChange = { oldSerialNumber = it.trim() },
-                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                        )
-                        TextField(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            label = { Text(text = "新的传感器序列号", fontSize = 10.sp) },
-                            value = newSerialNumber,
-                            onValueChange = { newSerialNumber = it.trim() },
-                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                        )
-                        ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = { expanded = !expanded },
-                        ) {
-                            TextField(
-                                modifier = Modifier
-                                    .menuAnchor()
-                                    .fillMaxWidth(),
-                                readOnly = true,
-                                value = type,
-                                onValueChange = {},
-                                label = { Text(text = "新的传感器类型", fontSize = 10.sp) },
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        expanded = expanded
-                                    )
-                                },
-                                //  colors = ExposedDropdownMenuDefaults.textFieldColors()
+            AlertDialog(onDismissRequest = {
+                update(false)
+                keyboardController?.hide()
+            }, title = {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center),
+                    text = "修改测温点信息"
+                )
+            }, text = {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = {
+                            Text(
+                                text = "要修改的测温点ID(必填)",
+                                color = Color.Red,
+                                fontSize = 10.sp
                             )
-                            ExposedDropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false },
-                            ) {
-                                for ((index, s) in sensorType.withIndex()) {
-                                    DropdownMenuItem(
-                                        text = { Text(s) },
-                                        onClick = {
-                                            type = s
-                                            expanded = false
-                                        },
-                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                    )
-                                    if (index != sensorType.size - 1) {
-                                        Divider()
-                                    }
+                        },
+                        value = oldId,
+                        onValueChange = {
+                            if (it.isID()) {
+                                oldId = it
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = "修改后的测温点id(选填)", fontSize = 10.sp) },
+                        value = id,
+                        onValueChange = {
+                            if (it.isID()) {
+                                id = it
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = "修改后的设备名称(选填)", fontSize = 10.sp) },
+                        value = deviceName,
+                        onValueChange = { deviceName = it.trim() },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                    )
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = "修改后的测温点名称(选填)", fontSize = 10.sp) },
+                        value = partsName,
+                        onValueChange = { partsName = it.trim() },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                    )
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = "修改后的传感器序列号(选填)", fontSize = 10.sp) },
+                        value = serialNumber,
+                        onValueChange = {
+                            if (it.isNumber()) {
+                                serialNumber = it
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded },
+                    ) {
+                        TextField(
+                            modifier = Modifier
+                                .menuAnchor()
+                                .fillMaxWidth(),
+                            readOnly = true,
+                            value = type,
+                            onValueChange = {},
+                            label = {
+                                Text(
+                                    text = "修改后的传感器类型(必填)",
+                                    color = Color.Red,
+                                    fontSize = 10.sp
+                                )
+                            },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(
+                                    expanded = expanded
+                                )
+                            },
+                            //  colors = ExposedDropdownMenuDefaults.textFieldColors()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                        ) {
+                            for ((index, s) in sensorType.withIndex()) {
+                                DropdownMenuItem(
+                                    text = { Text(s) },
+                                    onClick = {
+                                        type = s
+                                        expanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                                if (index != sensorType.size - 1) {
+                                    Divider()
                                 }
                             }
                         }
                     }
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            try {
-
-                                //TODO
-//                                PARTS_DAO.updateParts(
-//                                    oldSerialNumber.trim().toLong(),
-//                                    newSerialNumber.trim().toLong(),
-//                                    type.sensorType()
-//                                )
-                                RoomViewModel.updateParts()
-                                showToast(context, "传感器更换成功")
-                            } catch (e: Exception) {
-                                showToast(context, "传感器更换失败")
-                                Log.e(TAG, "AddParts: ", e)
-                            }
-                            update(false)
-                            keyboardController?.hide()
-                            // Handle user input here
-                        }
-                    ) {
-                        Text("OK")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            update(false)
-                            keyboardController?.hide()
-                        }
-                    ) {
-                        Text("Cancel")
-                    }
                 }
-            )
+            }, confirmButton = {
+                TextButton(onClick = {
+                    if (oldId == "") {
+                        showToast(context, "要修改的测温点ID不能为空")
+                    } else {
+                        RoomViewModel.editParts(
+                            oldId.toInt(),
+                            if (id == "") -1 else id.toInt(),
+                            deviceName,
+                            partsName,
+                            if (serialNumber == "") -1 else serialNumber.toLong(),
+                            type.sensorType(),
+                            context
+                        )
+                    }
+                    //update(false)
+                    keyboardController?.hide()
+                    // Handle user input here
+                }) {
+                    Text("OK")
+                }
+            }, dismissButton = {
+                TextButton(onClick = {
+                    update(false)
+                    keyboardController?.hide()
+                }) {
+                    Text("Cancel")
+                }
+            })
         }
     }
 

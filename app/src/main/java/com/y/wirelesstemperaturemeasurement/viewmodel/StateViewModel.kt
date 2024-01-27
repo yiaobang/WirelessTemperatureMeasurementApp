@@ -19,10 +19,10 @@ object StateViewModel : ViewModel() {
 
     //测温点数量
     var partsNumber by mutableIntStateOf(0)
-
+    //更新时间
+    var dataTime by mutableStateOf("")
     //测温点列表
     var PARTS by mutableStateOf<List<MutableList<Parts>>>(listOf())
-
     //每个传感器最新的数据
     var SensorDataMap by mutableStateOf<Map<Long, DataShow>>(mapOf())
     //声音
@@ -31,8 +31,6 @@ object StateViewModel : ViewModel() {
     var warn by mutableIntStateOf(0)
     //告警消息数量
     var error by mutableIntStateOf(0)
-    //
-    var event by mutableIntStateOf(0)
 
     fun updateAudible() {
         audible = !audible

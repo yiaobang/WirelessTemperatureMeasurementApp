@@ -1,6 +1,5 @@
 package com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
@@ -22,15 +21,69 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
-import com.y.wirelesstemperaturemeasurement.TAG
+import com.y.wirelesstemperaturemeasurement.room.Parts
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
+import com.y.wirelesstemperaturemeasurement.utils.isID
+import com.y.wirelesstemperaturemeasurement.utils.sensorType
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel.deleteParts
 
 @Composable
 fun DeleteParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
-    var serialNumber by remember { mutableStateOf("") }
+    var id by remember { mutableStateOf("") }
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    var partsInfo by remember { mutableStateOf(Parts(0, "", "", 0, 1.toByte())) }
+    var confirmed by remember { mutableStateOf(false) }
+    if (confirmed) {
+        AlertDialog(
+            onDismissRequest = {
+                confirmed = false
+                keyboardController?.hide()
+            },
+            title = {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center),
+                    text = "删除确认"
+                )
+            },
+            text = {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.Center),
+                        text = "要删除的测温点信息如下:\nID: ${partsInfo.id}\n设备名称: ${partsInfo.deviceName}\n测温点名称: ${partsInfo.partsName}\n传感器序列号: ${partsInfo.serialNumber}\n传感器类型: ${partsInfo.type.sensorType()} ",
+                        fontSize = 10.sp
+                    )
+                }
+            }, confirmButton = {
+                TextButton(
+                    onClick = {
+                        RoomViewModel.delete(id.toInt())
+                        showToast(context, "删除成功")
+                        confirmed = false
+                        keyboardController?.hide()
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        confirmed = false
+                        keyboardController?.hide()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
 
     Column {
         if (isDialogVisible) {
@@ -52,9 +105,13 @@ fun DeleteParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                         TextField(
                             modifier = Modifier
                                 .fillMaxWidth(),
-                            label = { Text(text = "传感器序列号", fontSize = 10.sp) },
-                            value = serialNumber,
-                            onValueChange = { serialNumber = it.trim() },
+                            label = { Text(text = "要删除的测温点ID", fontSize = 10.sp) },
+                            value = id,
+                            onValueChange = {
+                                if (it.isID()) {
+                                    id = it
+                                }
+                            },
                             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                         )
                     }
@@ -62,18 +119,19 @@ fun DeleteParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            try {
-                                //TODO
-                              //  PARTS_DAO.delete(serialNumber.trim().toLong())
-                                RoomViewModel.updateParts()
-                                showToast(context, "删除成功")
-                            } catch (e: Exception) {
-                                showToast(context, "删除失败")
-                                Log.e(TAG, "AddParts: ", e)
+                            if (id == "") {
+                                showToast(context, "要删除的测温点ID不能为空")
+                            } else {
+                                deleteParts(
+                                    id.toInt(),
+                                    context
+                                ) {
+                                    partsInfo = it
+                                    confirmed = true
+                                }
                             }
-                            update(false)
+                            //update(false)
                             keyboardController?.hide()
-                            // Handle user input here
                         }
                     ) {
                         Text("OK")

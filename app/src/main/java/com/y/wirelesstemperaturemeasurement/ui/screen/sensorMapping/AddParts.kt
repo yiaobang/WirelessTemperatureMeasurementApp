@@ -165,7 +165,6 @@ fun AddParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                                     ), context
                                 )
                             }
-                            // update(false)
                             keyboardController?.hide()
                         }
                     ) {
