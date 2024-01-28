@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +47,7 @@ import com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping.DeleteParts
 import com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping.UpdateParts
 import com.y.wirelesstemperaturemeasurement.ui.theme.ThemeColor
 import com.y.wirelesstemperaturemeasurement.utils.sensorType
+import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 
 @Composable
@@ -92,11 +94,11 @@ fun FloatingActionButton() {
                 delete = true
                 expand = false
             }
-//            ShuXian()
-//            FloatingActionButtonItem(Icons.Default.Refresh, "Refresh") {
-//                expand = false
-//                RoomViewModel.updateParts()
-//            }
+            ShuXian()
+            FloatingActionButtonItem(Icons.Default.Refresh, "Refresh") {
+                expand = false
+                RoomViewModel.updateParts()
+            }
             ShuXian()
             FloatingActionButtonItem(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,

@@ -144,6 +144,11 @@ fun getTemperature(dataShow: DataShow?): String {
     }
 }
 
+fun DataShow.temp(): String = "${this.temperature}$TEMP"
+fun DataShow.voltageRH(): String = when (this.type) {
+    1.toByte() -> "${this.voltageRH / 100.0}$RH"
+    else -> "${this.voltageRH / 1000.0}$VOLTAGE"
+}
 
 fun getVoltageRH(dataShow: DataShow?): String {
     return if (dataShow == null) {

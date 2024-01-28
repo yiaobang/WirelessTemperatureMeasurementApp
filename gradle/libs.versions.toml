@@ -11,14 +11,15 @@ lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.8.2"
 composeBom = "2024.01.00"
 navigationCompose = "2.7.6"
-roomTesting = "2.6.1"
+room = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomTesting" }
-androidx-room-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomTesting" }
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomTesting" }
-androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomTesting" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
+androidx-room-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 j2mod = { module = "com.ghgande:j2mod", version.ref = "j2mod" }
 jSerialComm = { module = "com.fazecast:jSerialComm", version.ref = "jserialcomm" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

@@ -133,6 +133,7 @@ interface JointDao {
                 "GROUP BY d.parts_id"
     )
     suspend fun dataShow(): List<DataShow>
+
 }
 
 private fun deleteTime() = System.currentTimeMillis() - 86_400_000

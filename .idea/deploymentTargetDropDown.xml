@@ -29,24 +29,11 @@
           <timeTargetWasSelectedWithDropDown value="2024-01-24T09:21:29.037738100Z" />
         </State>
       </entry>
-      <entry key="Test">
+      <entry key="TestPr">
         <State />
       </entry>
       <entry key="app">
-        <State>
-          <runningDeviceTargetSelectedWithDropDown>
-            <Target>
-              <type value="RUNNING_DEVICE_TARGET" />
-              <deviceKey>
-                <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="D:\Language\Android\simulator\.android\avd\Pixel_8_API_31.avd" />
-                </Key>
-              </deviceKey>
-            </Target>
-          </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-01-27T06:57:12.506045600Z" />
-        </State>
+        <State />
       </entry>
       <entry key="test()">
         <State />

@@ -78,6 +78,7 @@ dependencies {
     annotationProcessor(libs.androidx.room.room.compiler)
     ksp(libs.androidx.room.room.compiler)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.paging)
     testImplementation(libs.androidx.room.testing)
 
     //导航

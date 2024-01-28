@@ -22,10 +22,9 @@ import com.y.wirelesstemperaturemeasurement.room.haveId
 import com.y.wirelesstemperaturemeasurement.room.haveSerialNumber
 import com.y.wirelesstemperaturemeasurement.timeSumInit
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
+import com.y.wirelesstemperaturemeasurement.utils.now
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.SensorDataMap
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
 
 object RoomViewModel : ViewModel() {
 
@@ -214,6 +213,9 @@ object RoomViewModel : ViewModel() {
             updateParts()
         }
     }
+    fun queryHistory(){
+
+    }
 
     /**
      * 添加测温点数据
@@ -238,12 +240,12 @@ object RoomViewModel : ViewModel() {
             }
         }
     }
-
+    
     /**
      * 更新测温点列表
      *
      */
-    private fun updateParts() {
+    fun updateParts() {
         viewModelScope.launch {
             val parts = PARTS_DAO.selectAllParts()
             StateViewModel.partsNumber = parts.size
@@ -264,12 +266,6 @@ object RoomViewModel : ViewModel() {
             StateViewModel.dataTime = now()
         }
     }
-
-    val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-    private fun now(): String {
-        return simpleDateFormat.format(Date())
-    }
-
     fun closeDataBase() {
         disConnection()
         handler.removeCallbacks(updateData)
