@@ -7,9 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.y.wirelesstemperaturemeasurement.config.Config.readConfig
 import com.y.wirelesstemperaturemeasurement.config.Config.writeConfig
-import com.y.wirelesstemperaturemeasurement.room.Data
-import com.y.wirelesstemperaturemeasurement.room.DataShow
+import com.y.wirelesstemperaturemeasurement.room.HistoryData
+import com.y.wirelesstemperaturemeasurement.room.NowData
 import com.y.wirelesstemperaturemeasurement.room.Parts
+import com.y.wirelesstemperaturemeasurement.room.ShowEvent
 
 object StateViewModel : ViewModel() {
     //软件版本
@@ -21,8 +22,17 @@ object StateViewModel : ViewModel() {
     //测温点数量
     var partsNumber by mutableIntStateOf(0)
 
+    //预警
+    var alarm by mutableStateOf<List<ShowEvent>>(listOf())
+
+    //报警
+    var warning by mutableStateOf<List<ShowEvent>>(listOf())
+
+    //事件查询
+    var event by mutableStateOf<List<ShowEvent>>(listOf())
+
     //历史数据查询
-    var historyData by mutableStateOf<List<Data>>(listOf())
+    var historyData by mutableStateOf<List<HistoryData>>(listOf())
 
     //更新时间
     var dataTime by mutableStateOf("")
@@ -31,10 +41,11 @@ object StateViewModel : ViewModel() {
     var PARTS by mutableStateOf<List<MutableList<Parts>>>(listOf())
 
     //每个传感器最新的数据
-    var SensorDataMap by mutableStateOf<Map<Long, DataShow>>(mapOf())
+    var SensorDataMap by mutableStateOf<Map<Long, NowData>>(mapOf())
 
     //声音
     var audible by mutableStateOf(readConfig("audible", "true").toBoolean())
+        private set
 
     //预警消息数量
     var warn by mutableIntStateOf(0)

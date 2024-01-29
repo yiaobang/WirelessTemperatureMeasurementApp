@@ -28,10 +28,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.config.sensorType
+import com.y.wirelesstemperaturemeasurement.room.isID
+import com.y.wirelesstemperaturemeasurement.room.isNumber
+import com.y.wirelesstemperaturemeasurement.room.sensorType
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
-import com.y.wirelesstemperaturemeasurement.utils.isID
-import com.y.wirelesstemperaturemeasurement.utils.isNumber
-import com.y.wirelesstemperaturemeasurement.utils.sensorType
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -164,8 +164,8 @@ fun UpdateParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                         showToast(context, "要修改的测温点ID不能为空")
                     } else {
                         RoomViewModel.editParts(
-                            oldId.toInt(),
-                            if (id == "") -1 else id.toInt(),
+                            oldId.toLong(),
+                            if (id == "") -1 else id.toLong(),
                             deviceName,
                             partsName,
                             if (serialNumber == "") -1 else serialNumber.toLong(),

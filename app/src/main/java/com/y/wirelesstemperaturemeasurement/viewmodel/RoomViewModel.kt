@@ -6,6 +6,8 @@ import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.y.wirelesstemperaturemeasurement.DAY
+import com.y.wirelesstemperaturemeasurement.MONTH
 import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.data.listener.connection
 import com.y.wirelesstemperaturemeasurement.data.listener.disConnection
@@ -13,27 +15,32 @@ import com.y.wirelesstemperaturemeasurement.data.parse.temperature
 import com.y.wirelesstemperaturemeasurement.data.parse.voltageRH
 import com.y.wirelesstemperaturemeasurement.room.Data
 import com.y.wirelesstemperaturemeasurement.room.DataBase
-import com.y.wirelesstemperaturemeasurement.room.DataDao
-import com.y.wirelesstemperaturemeasurement.room.EventDao
-import com.y.wirelesstemperaturemeasurement.room.JointDao
 import com.y.wirelesstemperaturemeasurement.room.Parts
-import com.y.wirelesstemperaturemeasurement.room.PartsDao
+import com.y.wirelesstemperaturemeasurement.room.currentDateTime
+import com.y.wirelesstemperaturemeasurement.room.dao.DataDao
+import com.y.wirelesstemperaturemeasurement.room.dao.EventDao
+import com.y.wirelesstemperaturemeasurement.room.dao.HistoryDataDao
+import com.y.wirelesstemperaturemeasurement.room.dao.NowDataDao
+import com.y.wirelesstemperaturemeasurement.room.dao.PartsDao
+import com.y.wirelesstemperaturemeasurement.room.dao.ShowEventDao
 import com.y.wirelesstemperaturemeasurement.room.haveId
 import com.y.wirelesstemperaturemeasurement.room.haveSerialNumber
 import com.y.wirelesstemperaturemeasurement.timeSumInit
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
-import com.y.wirelesstemperaturemeasurement.utils.now
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.SensorDataMap
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.event
+import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.historyData
 import kotlinx.coroutines.launch
 
 object RoomViewModel : ViewModel() {
-
     private lateinit var DATA_BASE: DataBase
 
     private lateinit var PARTS_DAO: PartsDao
     private lateinit var DATE_DAO: DataDao
     private lateinit var EVENT_DAO: EventDao
-    private lateinit var JOINT_DAO: JointDao
+    private lateinit var HISTORY_DATA_DAO: HistoryDataDao
+    private lateinit var NOW_DATA_DAO: NowDataDao
+    private lateinit var SHOW_EVENT_DAO: ShowEventDao
 
 
     private val handler = Handler(Looper.getMainLooper())
@@ -57,7 +64,9 @@ object RoomViewModel : ViewModel() {
         PARTS_DAO = DATA_BASE.partsDao()
         DATE_DAO = DATA_BASE.dataDao()
         EVENT_DAO = DATA_BASE.eventDao()
-        JOINT_DAO = DATA_BASE.jointDao()
+        HISTORY_DATA_DAO = DATA_BASE.historyDao()
+        NOW_DATA_DAO = DATA_BASE.nowDataDao()
+        SHOW_EVENT_DAO = DATA_BASE.showEventDao()
         deleteOldData()
         updateParts()
         handler.post(updateData)
@@ -72,7 +81,6 @@ object RoomViewModel : ViewModel() {
     private fun deleteOldData() {
         viewModelScope.launch {
             DATE_DAO.deleteOldData()
-            EVENT_DAO.deleteOldEvent()
         }
     }
 
@@ -121,8 +129,8 @@ object RoomViewModel : ViewModel() {
      * @param [type] 修改后的传感器类型
      */
     fun editParts(
-        oldId: Int,
-        newId: Int,
+        oldId: Long,
+        newId: Long,
         deviceName: String,
         partsName: String,
         serialNumber: Long,
@@ -196,7 +204,7 @@ object RoomViewModel : ViewModel() {
         }
     }
 
-    fun deleteParts(id: Int, context: Context, updateInfo: (Parts) -> Unit) {
+    fun deleteParts(id: Long, context: Context, updateInfo: (Parts) -> Unit) {
         viewModelScope.launch {
             val parts = PARTS_DAO.selectId(id)
             if (parts == null) {
@@ -213,9 +221,6 @@ object RoomViewModel : ViewModel() {
             updateParts()
         }
     }
-    fun queryHistory(){
-
-    }
 
     /**
      * 添加测温点数据
@@ -225,7 +230,7 @@ object RoomViewModel : ViewModel() {
     fun addPartsData(serialNumber: Long, msg: ByteArray) {
         viewModelScope.launch {
             //查询测温点ID
-            val selectById = PARTS_DAO.selectById(serialNumber)
+            val selectById = PARTS_DAO.selectSerialNumber(serialNumber)
             if (selectById != null) {
                 val newTemp = temperature(msg[9], msg[10])
                 val newVoltageRH = voltageRH(msg[11], msg[12])
@@ -240,7 +245,7 @@ object RoomViewModel : ViewModel() {
             }
         }
     }
-    
+
     /**
      * 更新测温点列表
      *
@@ -256,19 +261,85 @@ object RoomViewModel : ViewModel() {
     }
 
     /**
+     * 查询历史数据
+     * @param [id] 测温点id
+     * @param [deviceName] 设备名称
+     * @param [selectedDateMillis] 开始时间
+     * @param [selectedDateMillis1] 结束时间
+     */
+    fun selectHistoryData(
+        id: Long?,
+        deviceName: String,
+        start: Long?,
+        end: Long?
+    ) {
+        val startTime = start ?: (System.currentTimeMillis() - 2 * MONTH)
+        val endTime = (end ?: System.currentTimeMillis()) + DAY
+        viewModelScope.launch {
+            historyData = if (id == null) {
+                if (deviceName == "") {
+                    HISTORY_DATA_DAO.historyData(startTime, endTime)
+                } else {
+                    HISTORY_DATA_DAO.historyData(deviceName, startTime, endTime)
+                }
+            } else {
+                HISTORY_DATA_DAO.historyData(id, startTime, endTime)
+            }
+        }
+    }
+
+    fun selectEvent(
+        id: Long?,
+        deviceName: String,
+        eventLevel: Byte,
+        start: Long?,
+        end: Long?
+    ) {
+        val startTime = start ?: (System.currentTimeMillis() - 2 * MONTH)
+        val endTime = (end ?: System.currentTimeMillis()) + DAY
+        viewModelScope.launch {
+            event = if (id == null) {
+                if (deviceName == "") {
+                    if (eventLevel == 0.toByte()) {
+                        SHOW_EVENT_DAO.showEvent(startTime, endTime)
+                    } else {
+                        SHOW_EVENT_DAO.showEvent(eventLevel, startTime, endTime)
+                    }
+                } else {
+                    if (eventLevel == 0.toByte()) {
+                        SHOW_EVENT_DAO.showEvent(deviceName, startTime, endTime)
+                    } else {
+                        SHOW_EVENT_DAO.showEvent(deviceName, eventLevel, startTime, endTime)
+                    }
+                }
+            } else {
+                if (eventLevel == 0.toByte()) {
+                    SHOW_EVENT_DAO.showEvent(id, startTime, endTime)
+                } else {
+                    SHOW_EVENT_DAO.showEvent(id, eventLevel, startTime, endTime)
+                }
+            }
+        }
+    }
+
+
+    /**
      * 更新数据列表
      *
      */
     fun updateData() {
         viewModelScope.launch {
-            SensorDataMap = JOINT_DAO.dataShow().associateBy { it.serialNumber }
+            SensorDataMap = NOW_DATA_DAO.currentData().associateBy { it.serialNumber }
             SensorDataMap.forEach { (index, data) -> Log.d(TAG, "$index = $data") }
-            StateViewModel.dataTime = now()
+            StateViewModel.dataTime = currentDateTime()
         }
     }
+
     fun closeDataBase() {
         disConnection()
         handler.removeCallbacks(updateData)
         DATA_BASE.close()
     }
+
+
 }

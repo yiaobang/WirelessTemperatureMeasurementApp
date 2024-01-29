@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2abf0cdcfbf2dce0ede09aa524520c9b",
+    "identityHash": "163a7edc5ea7af5af5bcfb3662e31e4b",
     "entities": [
       {
         "tableName": "temperature_measuring_point",
@@ -88,7 +88,7 @@
       },
       {
         "tableName": "temperature_measuring_point_data",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parts_id` INTEGER NOT NULL, `temperature` REAL NOT NULL, `voltage_rh` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `event_level` INTEGER NOT NULL, `time` INTEGER NOT NULL, FOREIGN KEY(`parts_id`) REFERENCES `temperature_measuring_point`(`parts_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parts_id` INTEGER NOT NULL, `temperature` REAL NOT NULL, `voltage_rh` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `time` INTEGER NOT NULL, FOREIGN KEY(`parts_id`) REFERENCES `temperature_measuring_point`(`parts_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -117,12 +117,6 @@
           {
             "fieldPath": "rssi",
             "columnName": "rssi",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "eventLevel",
-            "columnName": "event_level",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -184,7 +178,7 @@
       },
       {
         "tableName": "temperature_measuring_point_event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `parts_id` INTEGER NOT NULL, `temperature` REAL NOT NULL, `voltage_rh` INTEGER NOT NULL, `rssi` INTEGER NOT NULL, `event_level` INTEGER NOT NULL, `time` INTEGER NOT NULL, FOREIGN KEY(`parts_id`) REFERENCES `temperature_measuring_point`(`parts_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `data_id` INTEGER NOT NULL, `event_level` INTEGER NOT NULL, `event_msg` TEXT NOT NULL, FOREIGN KEY(`data_id`) REFERENCES `temperature_measuring_point_data`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -193,26 +187,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "partsId",
-            "columnName": "parts_id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "temperature",
-            "columnName": "temperature",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "voltageRH",
-            "columnName": "voltage_rh",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "rssi",
-            "columnName": "rssi",
+            "fieldPath": "dataId",
+            "columnName": "data_id",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -223,9 +199,9 @@
             "notNull": true
           },
           {
-            "fieldPath": "time",
-            "columnName": "time",
-            "affinity": "INTEGER",
+            "fieldPath": "eventMsg",
+            "columnName": "event_msg",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -246,34 +222,25 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_temperature_measuring_point_event_id` ON `${TABLE_NAME}` (`id`)"
           },
           {
-            "name": "index_temperature_measuring_point_event_parts_id",
+            "name": "index_temperature_measuring_point_event_data_id",
             "unique": false,
             "columnNames": [
-              "parts_id"
+              "data_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_temperature_measuring_point_event_parts_id` ON `${TABLE_NAME}` (`parts_id`)"
-          },
-          {
-            "name": "index_temperature_measuring_point_event_time",
-            "unique": false,
-            "columnNames": [
-              "time"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_temperature_measuring_point_event_time` ON `${TABLE_NAME}` (`time`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_temperature_measuring_point_event_data_id` ON `${TABLE_NAME}` (`data_id`)"
           }
         ],
         "foreignKeys": [
           {
-            "table": "temperature_measuring_point",
+            "table": "temperature_measuring_point_data",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "parts_id"
+              "data_id"
             ],
             "referencedColumns": [
-              "parts_id"
+              "id"
             ]
           }
         ]
@@ -282,7 +249,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2abf0cdcfbf2dce0ede09aa524520c9b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '163a7edc5ea7af5af5bcfb3662e31e4b')"
     ]
   }
 }

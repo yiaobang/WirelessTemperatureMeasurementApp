@@ -3,6 +3,7 @@ package com.y.wirelesstemperaturemeasurement.room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.y.wirelesstemperaturemeasurement.room.DataBase.Companion.initDataBase
+import com.y.wirelesstemperaturemeasurement.room.dao.DataDao
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith

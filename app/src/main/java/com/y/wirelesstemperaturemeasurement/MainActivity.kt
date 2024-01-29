@@ -19,6 +19,12 @@ const val TAG = "无线温湿度监测"
 var WIDTH = 0f
 var HEIGHT = 0f
 
+//一天时间少1毫秒
+const val DAY: Long = 86_399_999L
+
+//一个月的时间是多少毫秒
+const val MONTH: Long = 2_592_000_000L
+
 class MainActivity : ComponentActivity() {
     private val database: DataBase by lazy { DataBase.initDataBase(applicationContext) }
     override fun onCreate(savedInstanceState: Bundle?) {

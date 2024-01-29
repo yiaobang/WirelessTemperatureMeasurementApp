@@ -28,10 +28,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.config.sensorType
 import com.y.wirelesstemperaturemeasurement.room.Parts
+import com.y.wirelesstemperaturemeasurement.room.isID
+import com.y.wirelesstemperaturemeasurement.room.isNumber
+import com.y.wirelesstemperaturemeasurement.room.sensorType
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
-import com.y.wirelesstemperaturemeasurement.utils.isID
-import com.y.wirelesstemperaturemeasurement.utils.isNumber
-import com.y.wirelesstemperaturemeasurement.utils.sensorType
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,7 +157,7 @@ fun AddParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                             } else {
                                 RoomViewModel.addParts(
                                     Parts(
-                                        id.toInt(),
+                                        id.toLong(),
                                         deviceName,
                                         partsName,
                                         serialNumber.toLong(),

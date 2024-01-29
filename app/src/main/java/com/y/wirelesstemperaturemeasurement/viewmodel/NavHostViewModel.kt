@@ -14,8 +14,6 @@ import com.y.wirelesstemperaturemeasurement.ui.screen.Menu
 import com.y.wirelesstemperaturemeasurement.ui.screen.SensorMap
 import com.y.wirelesstemperaturemeasurement.ui.screen.Settings
 import com.y.wirelesstemperaturemeasurement.ui.screen.UploadData
-import com.y.wirelesstemperaturemeasurement.ui.screen.eventData.Alarm
-import com.y.wirelesstemperaturemeasurement.ui.screen.eventData.Warning
 import com.y.wirelesstemperaturemeasurement.ui.screen.settings.AlarmWarningParameter
 import com.y.wirelesstemperaturemeasurement.ui.screen.settings.WirelessReceiving
 import com.y.wirelesstemperaturemeasurement.ui.screen.uploadData.MQTT
@@ -33,8 +31,6 @@ fun WirelessTemperatureMeasurementApp() {
         composable("Menu/SensorMap") { SensorMap() }
         composable("Menu/Settings") { Settings() }
 
-        composable("Menu/EventData/Warning") { Warning() }
-        composable("Menu/EventData/Alarm") { Alarm() }
 
         composable("Menu/UploadData/MQTT") { MQTT() }
         composable("Menu/UploadData/Modbus") { Modbus() }
@@ -63,11 +59,6 @@ object NavHostViewModel : ViewModel() {
         CardInfo("Menu/SensorMap", R.drawable.logo_64, "设备映射"),
         CardInfo("Menu/UploadData", R.drawable.logo_64, "上传"),
         CardInfo("Menu/Settings", R.drawable.logo_64, "设置")
-    )
-    //事件
-    val eventCards = arrayOf(
-        CardInfo("Menu/EventData/Warning", R.drawable.logo_64, "预警"),
-        CardInfo("Menu/EventData/Alarm", R.drawable.logo_64, "告警")
     )
     //上传
     val upLoadCards = arrayOf(

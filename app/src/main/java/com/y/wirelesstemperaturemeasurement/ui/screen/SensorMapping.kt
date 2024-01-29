@@ -41,12 +41,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.room.Parts
+import com.y.wirelesstemperaturemeasurement.room.sensorType
 import com.y.wirelesstemperaturemeasurement.ui.components.TopBar
 import com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping.AddParts
 import com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping.DeleteParts
 import com.y.wirelesstemperaturemeasurement.ui.screen.sensorMapping.UpdateParts
 import com.y.wirelesstemperaturemeasurement.ui.theme.ThemeColor
-import com.y.wirelesstemperaturemeasurement.utils.sensorType
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 

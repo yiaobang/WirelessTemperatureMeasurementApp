@@ -4,7 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-
+import com.y.wirelesstemperaturemeasurement.room.dao.DataDao
+import com.y.wirelesstemperaturemeasurement.room.dao.EventDao
+import com.y.wirelesstemperaturemeasurement.room.dao.HistoryDataDao
+import com.y.wirelesstemperaturemeasurement.room.dao.NowDataDao
+import com.y.wirelesstemperaturemeasurement.room.dao.PartsDao
+import com.y.wirelesstemperaturemeasurement.room.dao.ShowEventDao
 
 
 @Database(
@@ -38,5 +43,11 @@ abstract class DataBase : RoomDatabase() {
     abstract fun partsDao(): PartsDao
     abstract fun dataDao(): DataDao
     abstract fun eventDao(): EventDao
-    abstract fun jointDao(): JointDao
+
+
+
+    abstract fun historyDao():HistoryDataDao
+    abstract fun nowDataDao():NowDataDao
+    abstract fun showEventDao():ShowEventDao
+
 }

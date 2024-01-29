@@ -36,8 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.R
 import com.y.wirelesstemperaturemeasurement.room.Parts
-import com.y.wirelesstemperaturemeasurement.room.getTemperature
-import com.y.wirelesstemperaturemeasurement.room.getVoltageRH
+import com.y.wirelesstemperaturemeasurement.room.temp
+import com.y.wirelesstemperaturemeasurement.room.voltageRH
 import com.y.wirelesstemperaturemeasurement.ui.theme.ThemeColor
 import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
@@ -57,6 +57,7 @@ private fun HomeContentTitle() {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             fontSize = 20.sp,
+            maxLines = 1,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.2f)
@@ -67,6 +68,7 @@ private fun HomeContentTitle() {
         )
         Text(
             fontSize = 20.sp,
+            maxLines = 1,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.4f)
@@ -77,6 +79,7 @@ private fun HomeContentTitle() {
         )
         Text(
             fontSize = 20.sp,
+            maxLines = 1,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.5f)
@@ -87,6 +90,7 @@ private fun HomeContentTitle() {
         )
         Text(
             fontSize = 20.sp,
+            maxLines = 1,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.3f)
@@ -97,6 +101,7 @@ private fun HomeContentTitle() {
         )
         Text(
             fontSize = 20.sp,
+            maxLines = 1,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .weight(0.25f)
@@ -148,6 +153,7 @@ private fun Data(parts: MutableList<Parts>) {
             parts.forEach {
                 Text(
                     fontSize = 18.sp,
+                    maxLines = 1,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
@@ -159,6 +165,7 @@ private fun Data(parts: MutableList<Parts>) {
         }
         Text(
             fontSize = 18.sp,
+            maxLines = 1,
             modifier = Modifier
                 .weight(0.4f)
                 .fillMaxHeight()
@@ -179,6 +186,7 @@ private fun Data(parts: MutableList<Parts>) {
                 ) {
                     Text(
                         fontSize = 18.sp,
+                        maxLines = 1,
                         modifier = Modifier
                             .weight(0.5f)
                             .border(1.dp, Color.Black)
@@ -187,19 +195,21 @@ private fun Data(parts: MutableList<Parts>) {
                     )
                     Text(
                         fontSize = 18.sp,
+                        maxLines = 1,
                         modifier = Modifier
                             .weight(0.3f)
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
-                        text = getTemperature(SensorDataMap[currentParts.serialNumber])
+                        text = SensorDataMap[currentParts.serialNumber].temp()
                     )
                     Text(
                         fontSize = 18.sp,
+                        maxLines = 1,
                         modifier = Modifier
                             .weight(0.25f)
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
-                        text = getVoltageRH(SensorDataMap[currentParts.serialNumber])
+                        text = SensorDataMap[currentParts.serialNumber].voltageRH()
                     )
                 }
             }
@@ -324,7 +334,7 @@ private fun ErrorMsg() {
 @Composable
 private fun EventMsg() {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { RoomViewModel.updateData()}) {
+        IconButton(onClick = { RoomViewModel.updateData() }) {
             Icon(
                 modifier = Modifier.size(30.dp),
                 imageVector = Icons.Default.Refresh,

@@ -22,9 +22,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.room.Parts
+import com.y.wirelesstemperaturemeasurement.room.isID
+import com.y.wirelesstemperaturemeasurement.room.sensorType
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
-import com.y.wirelesstemperaturemeasurement.utils.isID
-import com.y.wirelesstemperaturemeasurement.utils.sensorType
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel.deleteParts
 
@@ -123,7 +123,7 @@ fun DeleteParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
                                 showToast(context, "要删除的测温点ID不能为空")
                             } else {
                                 deleteParts(
-                                    id.toInt(),
+                                    id.toLong(),
                                     context
                                 ) {
                                     partsInfo = it

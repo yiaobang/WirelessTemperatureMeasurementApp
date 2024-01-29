@@ -1,4 +1,4 @@
-package com.y.wirelesstemperaturemeasurement.utils
+package com.y.wirelesstemperaturemeasurement.config
 
 import com.fazecast.jSerialComm.SerialPort.EVEN_PARITY
 import com.fazecast.jSerialComm.SerialPort.FLOW_CONTROL_CTS_ENABLED

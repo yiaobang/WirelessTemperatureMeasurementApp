@@ -10,11 +10,11 @@ import com.y.wirelesstemperaturemeasurement.data.parse.HARD
 import com.y.wirelesstemperaturemeasurement.data.parse.SOFT
 import com.y.wirelesstemperaturemeasurement.data.parse.dataParse
 import com.y.wirelesstemperaturemeasurement.data.parse.toHexStrArray
-import com.y.wirelesstemperaturemeasurement.utils.baudRate
-import com.y.wirelesstemperaturemeasurement.utils.dataBits
-import com.y.wirelesstemperaturemeasurement.utils.flow
-import com.y.wirelesstemperaturemeasurement.utils.parity
-import com.y.wirelesstemperaturemeasurement.utils.stopBits
+import com.y.wirelesstemperaturemeasurement.config.baudRate
+import com.y.wirelesstemperaturemeasurement.config.dataBits
+import com.y.wirelesstemperaturemeasurement.config.flow
+import com.y.wirelesstemperaturemeasurement.config.parity
+import com.y.wirelesstemperaturemeasurement.config.stopBits
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
 
 val serialPorts: Array<SerialPort> = SerialPort.getCommPorts()
