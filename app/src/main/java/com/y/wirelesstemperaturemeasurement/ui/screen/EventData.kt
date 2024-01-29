@@ -59,6 +59,7 @@ import com.y.wirelesstemperaturemeasurement.room.toDate
 import com.y.wirelesstemperaturemeasurement.room.toDateTime
 import com.y.wirelesstemperaturemeasurement.room.voltageRH
 import com.y.wirelesstemperaturemeasurement.ui.components.TopBar
+import com.y.wirelesstemperaturemeasurement.ui.components.showToast
 import com.y.wirelesstemperaturemeasurement.ui.theme.ThemeColor
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
@@ -524,15 +525,19 @@ private fun SearchEvent() {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        RoomViewModel.selectEvent(
-                            if (id.isID()) id.toLong() else null,
-                            deviceName,
-                            event.event(),
-                            start.selectedDateMillis,
-                            end.selectedDateMillis
-                        )
-                        expand = false
-                        keyboardController?.hide()
+                        if (start.selectedDateMillis != null && end.selectedDateMillis != null && start.selectedDateMillis!! > end.selectedDateMillis!!) {
+                            showToast(context, "开始时间不能大于截至时间")
+                        } else {
+                            RoomViewModel.selectEvent(
+                                if (id=="")null else id.toLong(),
+                                deviceName,
+                                event.event(),
+                                start.selectedDateMillis,
+                                end.selectedDateMillis
+                            )
+                            expand = false
+                            keyboardController?.hide()
+                        }
                     }
                 ) {
                     Text("OK")

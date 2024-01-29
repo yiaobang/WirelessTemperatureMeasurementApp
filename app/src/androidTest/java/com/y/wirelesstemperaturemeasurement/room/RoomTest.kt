@@ -12,14 +12,14 @@ import org.junit.runner.RunWith
 class RoomTest {
     lateinit var database: DataBase
     lateinit var dataDao: DataDao
-    lateinit var jointDao: JointDao
+
 
     @Before
     fun createDatabase() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         database = initDataBase(appContext)
         dataDao = database.dataDao()
-        jointDao = database.jointDao()
+
     }
 
     @After
