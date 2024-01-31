@@ -71,7 +71,8 @@ dependencies {
     implementation(libs.jSerialComm)
     //Modbus
     implementation(libs.j2mod)
-
+    //MQTT
+    implementation (libs.org.eclipse.paho.mqttv5.client)
 
     //SQLite 数据库
     implementation(libs.androidx.room.runtime)

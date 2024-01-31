@@ -18,8 +18,9 @@ fun ShowEvent?.voltageRH(): String =
 
 private fun temp(temperature: Double): String = "${temperature}$TEMP"
 private fun voltageRH(type: Byte, voltageRH: Short): String = when (type) {
-    1.toByte() -> "${voltageRH / 100.0}$RH"
-    else -> "${voltageRH / 1000.0}$VOLTAGE"
+    1.toByte() -> "${voltageRH / 1000.0}$VOLTAGE"
+    2.toByte() -> "${voltageRH / 100.0}$RH"
+    else -> "--"
 }
 
 fun Byte.sensorType() = when (this) {
@@ -94,4 +95,21 @@ fun String.isID(): Boolean {
     } catch (e: Exception) {
         false
     }
+}
+
+fun String.isNumberParameter(): Boolean {
+    if (this == "" || this == "-") {
+        return true
+    }
+    return try {
+        val toShort = this.toShort()
+        true
+    } catch (e: Exception) {
+        false
+    }
+}
+
+fun isIPv4Address(input: String): Boolean {
+    val ipv4Pattern = """^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$""".toRegex()
+    return ipv4Pattern.matches(input) && input.split(".").all { it.toIntOrNull() in 0..255 }
 }

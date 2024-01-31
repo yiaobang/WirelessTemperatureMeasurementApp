@@ -13,6 +13,10 @@ import com.y.wirelesstemperaturemeasurement.room.DataBase
 import com.y.wirelesstemperaturemeasurement.viewmodel.NavHostViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.RoomViewModel
 import com.y.wirelesstemperaturemeasurement.viewmodel.WirelessTemperatureMeasurementApp
+import java.net.Inet4Address
+import java.net.NetworkInterface
+import java.net.SocketException
+
 
 const val TAG = "无线温湿度监测"
 
@@ -27,9 +31,13 @@ const val MONTH: Long = 2_592_000_000L
 
 class MainActivity : ComponentActivity() {
     private val database: DataBase by lazy { DataBase.initDataBase(applicationContext) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate: ")
+        Thread{
+            println(getIpAddressString())
+        }.start()
         // enableEdgeToEdge()
         Config.initialize(applicationContext)
         RoomViewModel.initRoomViewModel(database = database)
@@ -82,5 +90,31 @@ fun ReadWidthHeight() {
     WIDTH = screenWidthDp.value
     HEIGHT = screenHeightDp.value
     Log.d(TAG, "ReadWidthHeight: 宽:${WIDTH}dp 高:${HEIGHT}dp")
+}
+
+/**
+ *获取本机IP
+ *
+ * @return
+ */
+fun getIpAddressString(): String {
+    try {
+        val enNetI = NetworkInterface
+            .getNetworkInterfaces()
+        while (enNetI.hasMoreElements()) {
+            val netI = enNetI.nextElement()
+            val enumIpAddr = netI
+                .getInetAddresses()
+            while (enumIpAddr.hasMoreElements()) {
+                val inetAddress = enumIpAddr.nextElement()
+                if (inetAddress is Inet4Address && !inetAddress.isLoopbackAddress()) {
+                    return inetAddress.getHostAddress()
+                }
+            }
+        }
+    } catch (e: SocketException) {
+        e.printStackTrace()
+    }
+    return ""
 }
 

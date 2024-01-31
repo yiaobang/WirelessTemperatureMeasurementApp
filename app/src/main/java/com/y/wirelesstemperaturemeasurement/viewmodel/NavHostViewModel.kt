@@ -16,6 +16,8 @@ import com.y.wirelesstemperaturemeasurement.ui.screen.Settings
 import com.y.wirelesstemperaturemeasurement.ui.screen.UploadData
 import com.y.wirelesstemperaturemeasurement.ui.screen.settings.AlarmWarningParameter
 import com.y.wirelesstemperaturemeasurement.ui.screen.settings.WirelessReceiving
+import com.y.wirelesstemperaturemeasurement.ui.screen.settings.sensorParameter.Temperature
+import com.y.wirelesstemperaturemeasurement.ui.screen.settings.sensorParameter.TemperatureHumidity
 import com.y.wirelesstemperaturemeasurement.ui.screen.uploadData.MQTT
 import com.y.wirelesstemperaturemeasurement.ui.screen.uploadData.Modbus
 
@@ -37,21 +39,27 @@ fun WirelessTemperatureMeasurementApp() {
 
         composable("Menu/Settings/WirelessReceiving") { WirelessReceiving() }
         composable("Menu/Settings/AlarmWarningParameter") { AlarmWarningParameter() }
+        composable("Menu/Settings/AlarmWarningParameter/Temperature") { Temperature() }
+        composable("Menu/Settings/AlarmWarningParameter/TemperatureHumidity") { TemperatureHumidity() }
     }
 }
 
 object NavHostViewModel : ViewModel() {
     lateinit var navHostController: NavHostController
         private set
+
     fun navHost(navHostController: NavHostController) {
         this.navHostController = navHostController
     }
+
     fun navigate(route: String) {
         navHostController.navigate(route)
     }
+
     fun popBackStack() {
         navHostController.popBackStack()
     }
+
     //菜单栏内容
     val menuCards = arrayOf(
         CardInfo("Menu/EventData", R.drawable.logo_64, "事件"),
@@ -60,14 +68,21 @@ object NavHostViewModel : ViewModel() {
         CardInfo("Menu/UploadData", R.drawable.logo_64, "上传"),
         CardInfo("Menu/Settings", R.drawable.logo_64, "设置")
     )
+
     //上传
     val upLoadCards = arrayOf(
         CardInfo("Menu/UploadData/MQTT", R.drawable.logo_64, "MQTT"),
         CardInfo("Menu/UploadData/Modbus", R.drawable.logo_64, "Modbus")
     )
+
     //设置
     val settingsCards = arrayOf(
         CardInfo("Menu/Settings/WirelessReceiving", R.drawable.logo_64, "无线接收模块设置"),
         CardInfo("Menu/Settings/AlarmWarningParameter", R.drawable.logo_64, "预警告警参数设置")
+    )
+    //参数设置
+    val alarmWarningParameter = arrayOf(
+        CardInfo("Menu/Settings/AlarmWarningParameter/Temperature", R.drawable.logo_64, "设备温度传感器"),
+        CardInfo("Menu/Settings/AlarmWarningParameter/TemperatureHumidity", R.drawable.logo_64, "环境温湿度传感器")
     )
 }
