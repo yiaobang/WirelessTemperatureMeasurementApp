@@ -51,6 +51,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEachIndexed
+import com.y.wirelesstemperaturemeasurement.config.eventLevels
 import com.y.wirelesstemperaturemeasurement.room.ShowEvent
 import com.y.wirelesstemperaturemeasurement.room.event
 import com.y.wirelesstemperaturemeasurement.room.isID
@@ -247,7 +249,7 @@ private fun Event(e: ShowEvent) {
                 .height(30.dp)
                 .border(1.dp, Color.Black)
                 .wrapContentSize(Alignment.Center),
-            text = e.eventLevel.event()
+            text = e.eventLevel.toString()
         )
         Text(
             fontSize = 20.sp,
@@ -364,32 +366,19 @@ private fun SearchEvent() {
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
                         ) {
-                            DropdownMenuItem(
-                                text = { Text(text = "所有级别") },
-                                onClick = {
-                                    event = "所有级别"
-                                    expanded = false
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
-                            Divider()
-                            DropdownMenuItem(
-                                text = { Text(text = "告警") },
-                                onClick = {
-                                    event = "告警"
-                                    expanded = false
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
-                            Divider()
-                            DropdownMenuItem(
-                                text = { Text(text = "报警") },
-                                onClick = {
-                                    event = "报警"
-                                    expanded = false
-                                },
-                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                            )
+                            eventLevels.fastForEachIndexed { index, eventData ->
+                                DropdownMenuItem(
+                                    text = { Text(text = "$eventData(${eventData.event()})") },
+                                    onClick = {
+                                        event = eventData
+                                        expanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                                if (index != eventLevels.size - 1){
+                                    Divider()
+                                }
+                            }
                         }
                     }
                     Box {
@@ -529,7 +518,7 @@ private fun SearchEvent() {
                             showToast(context, "开始时间不能大于截至时间")
                         } else {
                             RoomViewModel.selectEvent(
-                                if (id=="")null else id.toLong(),
+                                if (id == "") null else id.toLong(),
                                 deviceName,
                                 event.event(),
                                 start.selectedDateMillis,

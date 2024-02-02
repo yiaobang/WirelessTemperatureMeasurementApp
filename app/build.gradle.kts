@@ -1,9 +1,14 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.devtools.ksp")
 }
-ksp{
+val appName = "WirelessTemperatureMeasurement"
+ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
 }
@@ -16,25 +21,29 @@ android {
         minSdk = 23
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
-//        javaCompileOptions {
-//            annotationProcessorOptions {
-//                arguments += mapOf(
-//                    "room.schemaLocation" to "$projectDir/schemas",
-//                    "room.incremental" to "true"
-//                )
-//            }
-//        }
-    }
 
+    }
     buildTypes {
         release {
+            //代码压缩
             isMinifyEnabled = true
+            //移除未引用资源
+            isShrinkResources = true
+            //代码混淆
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -63,8 +72,23 @@ android {
     sourceSets {
         getByName("main").jniLibs.srcDirs("jni")
     }
+    signingConfigs {
+        // 创建签名配置
+        create("signing") {
+            storeFile = file(projectDir.parent + "/$appName.jks")
+            storePassword = "123456"
+            keyAlias = "key"
+            keyPassword = "123456"
+        }
+    }
+    //自定义编译打包后的名称 (APP名称-版本号-编译类型-Android版本)
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                "$appName-${buildType.name}-${defaultConfig.versionName}.APK"
+        }
+    }
 }
-
 dependencies {
 
     //串口
@@ -72,7 +96,7 @@ dependencies {
     //Modbus
     implementation(libs.j2mod)
     //MQTT
-    implementation (libs.org.eclipse.paho.mqttv5.client)
+    implementation(libs.org.eclipse.paho.mqttv5.client)
 
     //SQLite 数据库
     implementation(libs.androidx.room.runtime)
@@ -84,8 +108,8 @@ dependencies {
 
     //导航
     implementation(libs.androidx.navigation.compose)
-
-
+    //slf4j
+    implementation(libs.slf4j.api)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -105,3 +129,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+//编译的时间
+fun releaseTime(): String = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(Date())

@@ -39,7 +39,7 @@ interface PartsDao {
                 "sensor_type=:type " +
                 "WHERE parts_id=:id"
     )
-    suspend fun update(id: Long, newId: Long, deviceName: String, partsName: String, serialNumber: Long, type: Byte)
+    suspend fun update(id: Long, newId: Long, deviceName: String, partsName: String, serialNumber: Long, type: Int)
 
     /**
      * 根据ID查询测温点是否存在

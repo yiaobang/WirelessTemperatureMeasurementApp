@@ -11,10 +11,12 @@ import com.y.wirelesstemperaturemeasurement.MONTH
 import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.data.listener.connection
 import com.y.wirelesstemperaturemeasurement.data.listener.disConnection
+import com.y.wirelesstemperaturemeasurement.data.parse.eventLevelCheck
 import com.y.wirelesstemperaturemeasurement.data.parse.temperature
 import com.y.wirelesstemperaturemeasurement.data.parse.voltageRH
 import com.y.wirelesstemperaturemeasurement.room.Data
 import com.y.wirelesstemperaturemeasurement.room.DataBase
+import com.y.wirelesstemperaturemeasurement.room.Event
 import com.y.wirelesstemperaturemeasurement.room.Parts
 import com.y.wirelesstemperaturemeasurement.room.currentDateTime
 import com.y.wirelesstemperaturemeasurement.room.dao.DataDao
@@ -27,6 +29,8 @@ import com.y.wirelesstemperaturemeasurement.room.haveId
 import com.y.wirelesstemperaturemeasurement.room.haveSerialNumber
 import com.y.wirelesstemperaturemeasurement.timeSumInit
 import com.y.wirelesstemperaturemeasurement.ui.components.showToast
+import com.y.wirelesstemperaturemeasurement.upload.MyMQTT
+import com.y.wirelesstemperaturemeasurement.upload.MyModbus
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.SensorDataMap
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.event
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel.historyData
@@ -134,7 +138,7 @@ object RoomViewModel : ViewModel() {
         deviceName: String,
         partsName: String,
         serialNumber: Long,
-        newType: Byte,
+        newType: Int,
         context: Context
     ) {
         viewModelScope.launch {
@@ -238,10 +242,44 @@ object RoomViewModel : ViewModel() {
                     partsId = selectById,
                     temperature = newTemp,
                     voltageRH = newVoltageRH,
-                    rssi = msg[15]
+                    rssi = msg[15].toInt()
                 )
-                DATE_DAO.insert(newData)
+                val dataId = DATE_DAO.insert(newData)
+                addEvent(selectById,serialNumber,dataId,newData)
                 Log.i(TAG, "添加历史数据: $newData")
+            }
+        }
+    }
+
+    /**
+     * @param [partsId] 测温点ID
+     * @param [serialNumber]序列号
+     * @param [dateId]数据ID
+     * @param [newData]数据
+     */
+    private fun addEvent(partsId: Int, serialNumber: Long, dateId: Long, newData: Data) {
+        viewModelScope.launch {
+            //传感器类型
+            val nowData = SensorDataMap[serialNumber]
+            if (nowData != null) {
+                val eventLevelCheck = eventLevelCheck(nowData.type, newData)
+                if (eventLevelCheck != null) {
+                    //添加事件记录
+                    EVENT_DAO.insert(
+                        Event(
+                            0,
+                            dateId,
+                            eventLevelCheck.eventLevel,
+                            eventLevelCheck.eventMsg
+                        )
+                    )
+                    MyMQTT.sendEvent(partsId,nowData.type,newData,eventLevelCheck)
+                    MyModbus.updateMultipleRegisters(partsId,nowData.type,newData,eventLevelCheck.eventLevel)
+                } else {
+                    //不添加事件记录 正常通过MQTT  Modbus发送
+                    MyModbus.updateMultipleRegisters(partsId,nowData.type,newData,0)
+                    MyMQTT.sendData(partsId,nowData.type,newData)
+                }
             }
         }
     }
@@ -291,7 +329,7 @@ object RoomViewModel : ViewModel() {
     fun selectEvent(
         id: Long?,
         deviceName: String,
-        eventLevel: Byte,
+        eventLevel: Int,
         start: Long?,
         end: Long?
     ) {
@@ -300,20 +338,20 @@ object RoomViewModel : ViewModel() {
         viewModelScope.launch {
             event = if (id == null) {
                 if (deviceName == "") {
-                    if (eventLevel == 0.toByte()) {
+                    if (eventLevel == 0) {
                         SHOW_EVENT_DAO.showEvent(startTime, endTime)
                     } else {
                         SHOW_EVENT_DAO.showEvent(eventLevel, startTime, endTime)
                     }
                 } else {
-                    if (eventLevel == 0.toByte()) {
+                    if (eventLevel == 0) {
                         SHOW_EVENT_DAO.showEvent(deviceName, startTime, endTime)
                     } else {
                         SHOW_EVENT_DAO.showEvent(deviceName, eventLevel, startTime, endTime)
                     }
                 }
             } else {
-                if (eventLevel == 0.toByte()) {
+                if (eventLevel == 0) {
                     SHOW_EVENT_DAO.showEvent(id, startTime, endTime)
                 } else {
                     SHOW_EVENT_DAO.showEvent(id, eventLevel, startTime, endTime)

@@ -30,7 +30,7 @@ data class Parts(
     @ColumnInfo(name = "device_name") var deviceName: String,
     @ColumnInfo(name = "parts_name") var partsName: String,
     @ColumnInfo(name = "serial_number") var serialNumber: Long,
-    @ColumnInfo(name = "sensor_type") var type: Byte
+    @ColumnInfo(name = "sensor_type") var type: Int
 )
 
 /**
@@ -62,9 +62,9 @@ data class Parts(
 data class Data(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "parts_id") val partsId: Int = 0,
-    @ColumnInfo(name = "temperature") val temperature: Double = 0.0,
-    @ColumnInfo(name = "voltage_rh") val voltageRH: Short = 0,
-    @ColumnInfo(name = "rssi") val rssi: Byte = -70,
+    @ColumnInfo(name = "temperature") val temperature: Int = 0,
+    @ColumnInfo(name = "voltage_rh") val voltageRH: Int = 0,
+    @ColumnInfo(name = "rssi") val rssi: Int = -70,
     @ColumnInfo(name = "time") val time: Long = System.currentTimeMillis()
 )
 
@@ -96,7 +96,7 @@ data class Data(
 data class Event(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "data_id") val dataId: Long = 0,
-    @ColumnInfo(name = "event_level") val eventLevel: Byte = 0,
+    @ColumnInfo(name = "event_level") val eventLevel: Int = 0,
     @ColumnInfo(name = "event_msg") val eventMsg: String
 )
 

@@ -22,13 +22,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.y.wirelesstemperaturemeasurement.config.Config.readConfig
+import com.y.wirelesstemperaturemeasurement.config.Config
+import com.y.wirelesstemperaturemeasurement.config.TSensorAlarmMaxTemp
+import com.y.wirelesstemperaturemeasurement.config.TSensorAlarmMinTemp
+import com.y.wirelesstemperaturemeasurement.config.TSensorMaxTemp
+import com.y.wirelesstemperaturemeasurement.config.TSensorMinTemp
+import com.y.wirelesstemperaturemeasurement.config.show
+import com.y.wirelesstemperaturemeasurement.config.slave
 import com.y.wirelesstemperaturemeasurement.data.parse.TEMP
 import com.y.wirelesstemperaturemeasurement.room.isNumberParameter
 import com.y.wirelesstemperaturemeasurement.ui.components.TopBar
+import com.y.wirelesstemperaturemeasurement.ui.components.showToast
 
 @Composable
 fun Temperature() {
@@ -40,10 +48,11 @@ fun Temperature() {
 
 @Composable
 private fun TemperatureContent(paddingValues: PaddingValues) {
-    var minTemp by remember { mutableStateOf(readConfig("温度-min温度", "20")) }
-    var maxTemp by remember { mutableStateOf(readConfig("温度-max温度", "80")) }
-    var alarmMinTemp by remember { mutableStateOf(readConfig("温度-min预警温度", "0")) }
-    var alarmMaxTemp by remember { mutableStateOf(readConfig("温度-max预警温度", "100")) }
+    var minTemp by remember { mutableStateOf(TSensorMinTemp.show()) }
+    var maxTemp by remember { mutableStateOf(TSensorMaxTemp.show()) }
+    var alarmMinTemp by remember { mutableStateOf(TSensorAlarmMinTemp.show()) }
+    var alarmMaxTemp by remember { mutableStateOf(TSensorAlarmMaxTemp.show()) }
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(paddingValues)
@@ -66,7 +75,7 @@ private fun TemperatureContent(paddingValues: PaddingValues) {
                         minTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(text = "~")
             TextField(
@@ -78,7 +87,7 @@ private fun TemperatureContent(paddingValues: PaddingValues) {
                         maxTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
         Row(
@@ -95,7 +104,7 @@ private fun TemperatureContent(paddingValues: PaddingValues) {
                         alarmMinTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(text = "~")
             TextField(
@@ -107,10 +116,32 @@ private fun TemperatureContent(paddingValues: PaddingValues) {
                         alarmMaxTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
-        Button(onClick = { }) {
+        Button(onClick = {
+            try {
+                val minT = minTemp.toInt()
+                val maxT = maxTemp.toInt()
+                val alarmMinT = alarmMinTemp.toInt()
+                val alarmMaxT = alarmMaxTemp.toInt()
+                if (minT < maxT && alarmMinT < alarmMaxT && alarmMinT < minT && maxT < alarmMaxT) {
+                    TSensorMinTemp = minT
+                    TSensorMaxTemp = maxT
+                    TSensorAlarmMinTemp = alarmMinT
+                    TSensorAlarmMaxTemp = alarmMaxT
+                    Config.writeConfig("sensor:T-minT", minT.slave())
+                    Config.writeConfig("sensor:T-maxT", maxT.slave())
+                    Config.writeConfig("sensor:T-alarmMinT", alarmMinT.slave())
+                    Config.writeConfig("sensor:T-alarmMaxT", alarmMaxT.slave())
+                    showToast(context, "设置成功")
+                } else {
+                    showToast(context, "参数有误")
+                }
+            } catch (e: Exception) {
+                showToast(context, "参数有误")
+            }
+        }) {
             Text(text = "确认")
         }
     }

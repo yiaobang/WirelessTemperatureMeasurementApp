@@ -17,7 +17,6 @@ object Config {
         read = Config.context.getSharedPreferences(config_name, Context.MODE_PRIVATE)
         write = read.edit()
     }
-
     fun readConfig(key: String, def: String = "") = read.getString(key, def).toString()
     fun writeConfig(key: String, value: String) {
         Log.d(TAG, "writeConfig: $key = $value")

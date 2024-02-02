@@ -14,9 +14,9 @@ import androidx.room.ColumnInfo
  */
 data class NowData(
     @ColumnInfo(name = "serial_number") val serialNumber: Long,
-    @ColumnInfo(name = "sensor_type") var type: Byte,
-    @ColumnInfo(name = "temperature") val temperature: Double = 0.0,
-    @ColumnInfo(name = "voltage_rh") val voltageRH: Short = 0
+    @ColumnInfo(name = "sensor_type") var type: Int,
+    @ColumnInfo(name = "temperature") val temperature: Int = 0,
+    @ColumnInfo(name = "voltage_rh") val voltageRH: Int = 0
 )
 /**
  * 历史数据
@@ -37,9 +37,9 @@ data class HistoryData(
     @ColumnInfo(name = "device_name") var deviceName: String,
     @ColumnInfo(name = "parts_name") var partsName: String,
     @ColumnInfo(name = "serial_number") var serialNumber: Long,
-    @ColumnInfo(name = "sensor_type") var type: Byte,
-    @ColumnInfo(name = "temperature") val temperature: Double = 0.0,
-    @ColumnInfo(name = "voltage_rh") val voltageRH: Short = 0,
+    @ColumnInfo(name = "sensor_type") var type: Int,
+    @ColumnInfo(name = "temperature") val temperature: Int = 0,
+    @ColumnInfo(name = "voltage_rh") val voltageRH: Int = 0,
     @ColumnInfo(name = "time") val time: Long
 )
 /**
@@ -63,10 +63,10 @@ data class ShowEvent(
     @ColumnInfo(name = "device_name") var deviceName: String,
     @ColumnInfo(name = "parts_name") var partsName: String,
     @ColumnInfo(name = "serial_number") var serialNumber: Long,
-    @ColumnInfo(name = "sensor_type") var type: Byte,
-    @ColumnInfo(name = "temperature") val temperature: Double = 0.0,
-    @ColumnInfo(name = "voltage_rh") val voltageRH: Short = 0,
-    @ColumnInfo(name = "event_level") val eventLevel: Byte = 0,
+    @ColumnInfo(name = "sensor_type") var type: Int,
+    @ColumnInfo(name = "temperature") val temperature: Int = 0,
+    @ColumnInfo(name = "voltage_rh") val voltageRH: Int = 0,
+    @ColumnInfo(name = "event_level") val eventLevel: Int = 0,
     @ColumnInfo(name = "event_msg") val eventMsg: String,
     @ColumnInfo(name = "time") val time: Long
 )

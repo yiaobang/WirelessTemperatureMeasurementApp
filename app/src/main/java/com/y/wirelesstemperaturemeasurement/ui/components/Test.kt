@@ -14,7 +14,6 @@ fun Hello() {
         initialSelectedDateMillis = System.currentTimeMillis(), // epoch/unix timestamp
         initialDisplayMode = DisplayMode.Input,
     )
-
     DatePicker(
         state = datePickerState,
         showModeToggle = false,

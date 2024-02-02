@@ -33,7 +33,7 @@ fun DeleteParts(isDialogVisible: Boolean, update: (b: Boolean) -> Unit) {
     var id by remember { mutableStateOf("") }
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    var partsInfo by remember { mutableStateOf(Parts(0, "", "", 0, 1.toByte())) }
+    var partsInfo by remember { mutableStateOf(Parts(0, "", "", 0, 1)) }
     var confirmed by remember { mutableStateOf(false) }
     if (confirmed) {
         AlertDialog(

@@ -48,7 +48,7 @@ interface ShowEventDao {
                 "JOIN temperature_measuring_point_event AS e ON  d.id=e.data_id " +
                 "WHERE e.event_level=:eventLevel AND d.time>=:start AND d.time<=:end ORDER BY d.time DESC"
     )
-    suspend fun showEvent(eventLevel: Byte, start: Long, end: Long): List<ShowEvent>
+    suspend fun showEvent(eventLevel: Int, start: Long, end: Long): List<ShowEvent>
 
     /**
      * 根据设备名称和时间过滤
@@ -83,7 +83,7 @@ interface ShowEventDao {
     )
     suspend fun showEvent(
         deviceName: String,
-        eventLevel: Byte,
+        eventLevel: Int,
         start: Long, end: Long
     ): List<ShowEvent>
 
@@ -120,7 +120,7 @@ interface ShowEventDao {
     )
     suspend fun showEvent(
         id: Long,
-        eventLevel: Byte,
+        eventLevel: Int,
         start: Long, end: Long
     ): List<ShowEvent>
 }

@@ -6,16 +6,21 @@ import com.fazecast.jSerialComm.SerialPortEvent
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions
 import com.y.wirelesstemperaturemeasurement.TAG
 import com.y.wirelesstemperaturemeasurement.config.Config.readConfig
-import com.y.wirelesstemperaturemeasurement.data.parse.HARD
-import com.y.wirelesstemperaturemeasurement.data.parse.SOFT
-import com.y.wirelesstemperaturemeasurement.data.parse.dataParse
-import com.y.wirelesstemperaturemeasurement.data.parse.toHexStrArray
 import com.y.wirelesstemperaturemeasurement.config.baudRate
 import com.y.wirelesstemperaturemeasurement.config.dataBits
 import com.y.wirelesstemperaturemeasurement.config.flow
 import com.y.wirelesstemperaturemeasurement.config.parity
 import com.y.wirelesstemperaturemeasurement.config.stopBits
+import com.y.wirelesstemperaturemeasurement.data.parse.HARD
+import com.y.wirelesstemperaturemeasurement.data.parse.SOFT
+import com.y.wirelesstemperaturemeasurement.data.parse.dataParse
+import com.y.wirelesstemperaturemeasurement.data.parse.toHexStrArray
+import com.y.wirelesstemperaturemeasurement.upload.MyMQTT
+import com.y.wirelesstemperaturemeasurement.upload.MyModbus
 import com.y.wirelesstemperaturemeasurement.viewmodel.StateViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 val serialPorts: Array<SerialPort> = SerialPort.getCommPorts()
 val serialPortNames = serialPorts.map { it.systemPortName }
@@ -28,7 +33,6 @@ private var dataBitsY: Int = 8
 private var stopBitsY: Int = 1
 private var parityY: Int = 0
 private var flowY: Int = 0
-
 private fun read() {
     serialNumberY = readConfig("串口号")
     baudRateY = readConfig("波特率", "19200").baudRate()
@@ -38,10 +42,10 @@ private fun read() {
     flowY = readConfig("流控", "0").flow()
 }
 
-
+@OptIn(DelicateCoroutinesApi::class)
 fun connection() {
-    StateViewModel.SOFT=""
-    StateViewModel.HARD=""
+    StateViewModel.SOFT = ""
+    StateViewModel.HARD = ""
     read()
     disConnection()
     Log.d(
@@ -64,14 +68,19 @@ fun connection() {
             Log.d(TAG, "connection: 打开成功")
             writeData(SOFT)
             writeData(HARD)
-//            Thread.sleep(500)
-//            if (StateViewModel.SOFT.isNotEmpty()) {
-//
-//                Log.d(TAG, "connection: 串口初始化完成")
-//            } else {
-//                removeDataListener()
-//                closePort()
-//            }
+
+            Thread.sleep(500)
+            if (StateViewModel.SOFT.isNotEmpty()) {
+                Log.d(TAG, "connection: 串口初始化完成")
+                //串口连接完成后打开Modbus 和MQTT
+                GlobalScope.launch{
+                    MyModbus.init()
+                    MyMQTT.init()
+                }
+            } else {
+                removeDataListener()
+                closePort()
+            }
         }
     }
 }

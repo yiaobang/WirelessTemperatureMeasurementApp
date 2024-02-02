@@ -22,14 +22,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.y.wirelesstemperaturemeasurement.config.Config
+import com.y.wirelesstemperaturemeasurement.config.THSensorAlarmMaxRH
+import com.y.wirelesstemperaturemeasurement.config.THSensorAlarmMaxTemp
+import com.y.wirelesstemperaturemeasurement.config.THSensorAlarmMinRH
+import com.y.wirelesstemperaturemeasurement.config.THSensorAlarmMinTemp
+import com.y.wirelesstemperaturemeasurement.config.THSensorMaxRH
+import com.y.wirelesstemperaturemeasurement.config.THSensorMaxTemp
+import com.y.wirelesstemperaturemeasurement.config.THSensorMinRH
+import com.y.wirelesstemperaturemeasurement.config.THSensorMinTemp
+import com.y.wirelesstemperaturemeasurement.config.show
+import com.y.wirelesstemperaturemeasurement.config.slave
 import com.y.wirelesstemperaturemeasurement.data.parse.RH
 import com.y.wirelesstemperaturemeasurement.data.parse.TEMP
 import com.y.wirelesstemperaturemeasurement.room.isNumberParameter
 import com.y.wirelesstemperaturemeasurement.ui.components.TopBar
+import com.y.wirelesstemperaturemeasurement.ui.components.showToast
 
 @Composable
 fun TemperatureHumidity() {
@@ -42,18 +54,19 @@ fun TemperatureHumidity() {
 @Composable
 private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
 
-    var minTemp by remember { mutableStateOf(Config.readConfig("温湿度-min温度", "20")) }
-    var maxTemp by remember { mutableStateOf(Config.readConfig("温湿度-max温度", "80")) }
+    var minTemp by remember { mutableStateOf(THSensorMinTemp.show()) }
+    var maxTemp by remember { mutableStateOf(THSensorMaxTemp.show()) }
 
-    var minHumidity by remember { mutableStateOf(Config.readConfig("温湿度-min湿度", "30")) }
-    var maxHumidity by remember { mutableStateOf(Config.readConfig("温湿度-max湿度", "70")) }
+    var alarmMinTemp by remember { mutableStateOf(THSensorAlarmMinTemp.show()) }
+    var alarmMaxTemp by remember { mutableStateOf(THSensorAlarmMaxTemp.show()) }
 
-    var alarmMinTemp by remember { mutableStateOf(Config.readConfig("温湿度-min预警温度", "0")) }
-    var alarmMaxTemp by remember { mutableStateOf(Config.readConfig("温湿度-max预警温度", "100")) }
+    var minHumidity by remember { mutableStateOf(THSensorMinRH.show()) }
+    var maxHumidity by remember { mutableStateOf(THSensorMaxRH.show()) }
 
-    var alarmMinHumidity by remember { mutableStateOf(Config.readConfig("温湿度-min预警湿度", "10")) }
-    var alarmMaxHumidity by remember { mutableStateOf(Config.readConfig("温湿度-max预警湿度", "80")) }
+    var alarmMinHumidity by remember { mutableStateOf(THSensorAlarmMinRH.show()) }
+    var alarmMaxHumidity by remember { mutableStateOf(THSensorAlarmMaxRH.show()) }
 
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .padding(paddingValues)
@@ -75,7 +88,7 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         minTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(text = "~")
             TextField(
@@ -87,7 +100,7 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         maxTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
         Row(
@@ -104,7 +117,7 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         alarmMinTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(text = "~")
             TextField(
@@ -116,7 +129,7 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         alarmMaxTemp = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
         Row(
@@ -133,7 +146,7 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         minHumidity = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(text = "~")
             TextField(
@@ -145,7 +158,7 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         maxHumidity = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
         Row(
@@ -162,7 +175,7 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         alarmMinHumidity = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
             Text(text = "~")
             TextField(
@@ -174,10 +187,46 @@ private fun TemperatureHumidityContent(paddingValues: PaddingValues) {
                         alarmMaxHumidity = it
                     }
                 },
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
         }
-        Button(onClick = { }) {
+        Button(onClick = {
+            try {
+                val minT = minTemp.toInt()
+                val maxT = maxTemp.toInt()
+                val alarmMinT = alarmMinTemp.toInt()
+                val alarmMaxT = alarmMaxTemp.toInt()
+                val minH = minHumidity.toInt()
+                val maxH = maxHumidity.toInt()
+                val alarmMinH = alarmMinHumidity.toInt()
+                val alarmMaxH = alarmMaxHumidity.toInt()
+                if (minT < maxT && alarmMinT < alarmMaxT && alarmMinT < minT && maxT < alarmMaxT &&
+                    minH < maxH && alarmMinH < alarmMaxH && alarmMinH < minH && maxH < alarmMaxH
+                ) {
+                    THSensorMinTemp = minT
+                    THSensorMaxTemp = maxT
+                    THSensorAlarmMinTemp = alarmMinT
+                    THSensorAlarmMaxTemp = alarmMaxT
+                    THSensorMinRH = minH
+                    THSensorMaxRH = maxH
+                    THSensorAlarmMinRH = alarmMinH
+                    THSensorAlarmMaxRH = alarmMaxH
+                    Config.writeConfig("sensor:TH-minT", minT.slave())
+                    Config.writeConfig("sensor:TH-maxT", maxT.slave())
+                    Config.writeConfig("sensor:TH-alarmMinT", alarmMinT.slave())
+                    Config.writeConfig("sensor:TH-alarmMaxT", alarmMaxT.slave())
+                    Config.writeConfig("sensor:TH-minT", minH.slave())
+                    Config.writeConfig("sensor:TH-maxT", maxH.slave())
+                    Config.writeConfig("sensor:TH-alarmMinT", alarmMinH.slave())
+                    Config.writeConfig("sensor:TH-alarmMaxT", alarmMaxH.slave())
+                    showToast(context, "设置成功")
+                } else {
+                    showToast(context, "参数有误")
+                }
+            } catch (e: Exception) {
+                showToast(context, "参数有误")
+            }
+        }) {
             Text(text = "确认")
         }
     }

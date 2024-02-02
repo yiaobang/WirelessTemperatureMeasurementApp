@@ -1,5 +1,15 @@
 package com.y.wirelesstemperaturemeasurement.data.parse
 
+import com.y.wirelesstemperaturemeasurement.config.THSensorAlarmMaxRH
+import com.y.wirelesstemperaturemeasurement.config.THSensorAlarmMinRH
+import com.y.wirelesstemperaturemeasurement.config.THSensorMaxRH
+import com.y.wirelesstemperaturemeasurement.config.THSensorMinRH
+import com.y.wirelesstemperaturemeasurement.config.TSensorAlarmMaxTemp
+import com.y.wirelesstemperaturemeasurement.config.TSensorAlarmMinTemp
+import com.y.wirelesstemperaturemeasurement.config.TSensorMaxTemp
+import com.y.wirelesstemperaturemeasurement.config.TSensorMinTemp
+import com.y.wirelesstemperaturemeasurement.room.Data
+import com.y.wirelesstemperaturemeasurement.room.eventMsg
 import java.nio.ByteBuffer
 
 /**
@@ -34,6 +44,7 @@ import java.nio.ByteBuffer
 
 /**查询硬件版本**/
 val HARD: ByteArray = byteArrayOf(0x53, 0x00, 0x03, 0x06, 0x00, 0x5C, 0x16)
+
 /**查询软件版本**/
 val SOFT: ByteArray = byteArrayOf(0x53, 0x00, 0x03, 0x07, 0x00, 0x5D, 0x16)
 
@@ -41,6 +52,7 @@ const val TEMP = "℃"
 const val VOLTAGE = "V"
 const val RH = "%RH"
 const val MIN_DATA_SIZE = 11
+
 enum class MainFunctionCode(byte: Byte) {
     READ(0x03), WRITE(0x10);
 }
@@ -71,7 +83,7 @@ fun computeReplyData(data: ByteArray): ByteArray {
         data[7],
         data[8]
     )
-    return byteArrayOf+calculateChecksumResult(byteArrayOf)+0x16
+    return byteArrayOf + calculateChecksumResult(byteArrayOf) + 0x16
 }
 
 /**
@@ -80,7 +92,7 @@ fun computeReplyData(data: ByteArray): ByteArray {
  * @return [Byte]
  */
 fun calculateChecksumResult(data: ByteArray): Byte = (data.sum() and 0xFF).toByte()
-  //  (data.sumOf { it.toInt() and 0xFF } and 0xFF).toByte()
+//  (data.sumOf { it.toInt() and 0xFF } and 0xFF).toByte()
 
 /**
  * 校验和验证
@@ -103,7 +115,8 @@ fun checksum(data: MutableList<Byte>): Boolean {
  * @param [high] 地址中高字节
  * @param [maxHigh] 地址最高字节
  */
-fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): UInt = restoreData(maxLow, low, high, maxHigh).toUInt()
+fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): UInt =
+    restoreData(maxLow, low, high, maxHigh).toUInt()
 /**
  * 恢复数据
  * @param [data] 数据
@@ -115,14 +128,14 @@ fun address(maxLow: Byte, low: Byte, high: Byte, maxHigh: Byte): UInt = restoreD
  * @param [low] 低
  * @param [high] 高
  */
-fun temperature(low: Byte, high: Byte): Double = restoreData(low, high)/ 100.0
+fun temperature(low: Byte, high: Byte): Int = restoreData(low, high).toInt()
 
 /**
  * 解析电压(mv)/ 或者湿度 RH
  * @param [low] 低
  * @param [high] 高
  */
-fun voltageRH(low: Byte, high: Byte): Short = restoreData(low, high)
+fun voltageRH(low: Byte, high: Byte): Int = restoreData(low, high).toInt()
 
 /**
  * 解析软件版本或者硬件版本
@@ -138,6 +151,7 @@ fun version(data: ByteArray): String = String(data.sliceArray(5 until data.size 
 fun ByteArray.toHexStrArray(): Array<String> {
     return this.map { byte -> "%02X".format(byte) }.toTypedArray()
 }
+
 fun restoreData(low: Byte, high: Byte): Short {
     val buffer = ByteBuffer.allocate(2).order(java.nio.ByteOrder.LITTLE_ENDIAN)
     buffer.put(low)
@@ -156,7 +170,16 @@ fun restoreData(byte1: Byte, byte2: Byte, byte3: Byte, byte4: Byte): Int {
     return buffer.getInt()
 }
 
-fun restoreData(byte1: Byte, byte2: Byte, byte3: Byte, byte4: Byte, byte5: Byte, byte6: Byte, byte7: Byte, byte8: Byte): Long {
+fun restoreData(
+    byte1: Byte,
+    byte2: Byte,
+    byte3: Byte,
+    byte4: Byte,
+    byte5: Byte,
+    byte6: Byte,
+    byte7: Byte,
+    byte8: Byte
+): Long {
     val buffer = ByteBuffer.allocate(8).order(java.nio.ByteOrder.LITTLE_ENDIAN)
     buffer.put(byte1)
     buffer.put(byte2)
@@ -169,3 +192,86 @@ fun restoreData(byte1: Byte, byte2: Byte, byte3: Byte, byte4: Byte, byte5: Byte,
     buffer.flip()
     return buffer.getLong()
 }
+
+/**
+ * 数据级别检查
+ * @param [data] 数据
+ */
+fun eventLevelCheck(type: Int, data: Data): EventLevelAndMsg? =
+    when (type) {
+        1 -> tempSensor(data)
+        2 -> tempHSensor(data)
+        else -> null
+    }
+
+/**
+ * 温度传感器事件检查
+ *
+ * @param data
+ */
+fun tempSensor(data: Data): EventLevelAndMsg? {
+    val temp = TSensorMinTemp..TSensorMaxTemp
+    val alarmTemp = TSensorAlarmMinTemp..TSensorAlarmMaxTemp
+    //判断事件级别
+    val event = when (data.temperature) {
+        in temp -> 0
+        in alarmTemp -> 10
+        else -> 20
+    }
+    return if (event > 0) {
+        EventLevelAndMsg(event, event.eventMsg(data.temperature))
+    } else {
+        null
+    }
+}
+
+data class EventLevelAndMsg(
+    val eventLevel: Int,
+    val eventMsg: String
+)
+
+/**
+ * 温湿度传感器事件检查
+ *
+ * @param data
+ */
+fun tempHSensor(data: Data): EventLevelAndMsg? {
+    val temp = TSensorMinTemp..TSensorMaxTemp
+    val alarmTemp = TSensorAlarmMinTemp..TSensorAlarmMaxTemp
+    val rh = THSensorMinRH..THSensorMaxRH
+    val alarmRh = THSensorAlarmMinRH..THSensorAlarmMaxRH
+    var event = 0
+    when (data.temperature) {
+        in temp -> {
+            event += when (data.voltageRH) {
+                in rh -> 0
+                in alarmRh -> 1
+                else -> 2
+            }
+        }
+
+        in alarmTemp -> {
+            event += 10
+            event += when (data.voltageRH) {
+                in rh -> 0
+                in alarmRh -> 1
+                else -> 2
+            }
+        }
+
+        else -> {
+            event += 20
+            event += when (data.voltageRH) {
+                in rh -> 0
+                in alarmRh -> 1
+                else -> 2
+            }
+        }
+    }
+    return if (event > 0) {
+        EventLevelAndMsg(event, event.eventMsg(data.temperature,data.voltageRH))
+    } else {
+        null
+    }
+}
+
