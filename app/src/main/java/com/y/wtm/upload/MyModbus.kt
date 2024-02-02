@@ -10,8 +10,7 @@ import com.y.wtm.room.toShorts
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.Timer
-import java.util.TimerTask
+import java.lang.Thread.sleep
 
 object MyModbus {
     @Volatile
@@ -20,43 +19,44 @@ object MyModbus {
     //正在连接
     @Volatile
     private var conning: Boolean = false
+
+    @Volatile
     private var address = "127.0.0.1"
+
+    @Volatile
     private var port = 502
-    private val timer = Timer()
-    /**
-     * Modbus连接任务
-     */
-    private val timerTask = object : TimerTask() {
-        override fun run() {
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun connModbus() = GlobalScope.launch {
+        conning = true
+        while (conning) {
             try {
+                master = ModbusTCPMaster(address, port)
                 master.connect()
-                if (master.isConnected) {
-                    Log.d(TAG, "run: Modbus连接成功")
-                    //初始化完成关闭任务
-                    conning = false
-                    timer.cancel()
-                }
+                conning = !master.isConnected
             } catch (e: Exception) {
-                Log.e(TAG, "run: Modbus连接异常 ${e.message}")
+                Log.e(TAG, "connModbus: ", e)
             }
+            sleep(60_000)
         }
     }
+
     private fun read() {
         address = Config.readConfig("modbus-IP", address)
         port = Config.readConfig("modbus-port", "502").toInt()
     }
+
     @OptIn(DelicateCoroutinesApi::class)
     fun init() = GlobalScope.launch {
         read()
-        timer.cancel()
-        conning = true
         if (::master.isInitialized && master.isConnected) {
             master.disconnect()
         }
-        master = ModbusTCPMaster(address, port)
         Log.d(TAG, "init: Modbus开始初始化")
-        //启动任务
-        timer.schedule(timerTask, 0, 60_000)
+        if (!conning) {
+            //启动任务
+            connModbus()
+        }
     }
 
 
@@ -70,14 +70,14 @@ object MyModbus {
                 } catch (e: Exception) {
                     Log.e(TAG, "updateMultipleRegisters: Modbus数据写入异常", e)
                     if (!conning) {
-                        conning =true
-                        timer.schedule(timerTask, 0, 60_000)
+                        //启动任务
+                        connModbus()
                     }
                 }
             } else {
                 if (!conning) {
-                    conning =true
-                    timer.schedule(timerTask, 0, 60_000)
+                    //启动任务
+                    connModbus()
                 }
             }
         }

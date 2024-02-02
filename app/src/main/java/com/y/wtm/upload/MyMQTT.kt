@@ -19,8 +19,6 @@ import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse
 import org.eclipse.paho.mqttv5.common.MqttException
 import org.eclipse.paho.mqttv5.common.MqttMessage
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties
-import java.util.Timer
-import java.util.TimerTask
 import java.util.UUID
 
 /**
@@ -38,31 +36,21 @@ object MyMQTT : MqttCallback {
     private val mqttConnectionOptions: MqttConnectionOptions = MqttConnectionOptions()
     private const val dataTopic = "data"
     private const val eventTopic = "event"
-    private var address = "127.0.0.1"
-    private var port = 1883
-    private var clientId = UUID.randomUUID().toString()
-    private var userName = ""
-    private var password = ""
-    private val timer = Timer()
 
-    /**
-     * MQTT连接任务
-     */
-    private val timerTask = object : TimerTask() {
-        override fun run() {
-            try {
-                MQTT.connect(mqttConnectionOptions)
-                if (MQTT.isConnected) {
-                    Log.d(TAG, "MQTT连接成功")
-                    //初始化完成关闭任务
-                    conning = false
-                    timer.cancel()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "MQTT移除 ${e.message}")
-            }
-        }
-    }
+    @Volatile
+    private var address = "127.0.0.1"
+
+    @Volatile
+    private var port = 1883
+
+    @Volatile
+    private var clientId = UUID.randomUUID().toString()
+
+    @Volatile
+    private var userName = ""
+
+    @Volatile
+    private var password = ""
 
     private fun read() {
         address = Config.readConfig("mqtt-IP", address)
@@ -73,31 +61,48 @@ object MyMQTT : MqttCallback {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
+    private fun connModbus() = GlobalScope.launch {
+        conning = true
+        while (conning) {
+            try {
+                MQTT = MqttClient("tcp://$address:$port", clientId, null)
+                MQTT.setCallback(MyMQTT)
+                mqttConnectionOptions.userName = userName
+                mqttConnectionOptions.password = password.toByteArray()
+                MQTT.connect()
+                conning = !MQTT.isConnected
+            } catch (e: Exception) {
+                Log.e(TAG, "connModbus: MQTT连接报错", e)
+            }
+            Thread.sleep(60_000)
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
     fun init() = GlobalScope.launch {
         read()
-        timer.cancel()
-        conning = true
-        if (::MQTT.isInitialized) {
+        if (::MQTT.isInitialized && MQTT.isConnected) {
             MQTT.disconnect()
             MQTT.close()
         }
-        MQTT = MqttClient("tcp://$address:$port", clientId, null)
-        MQTT.setCallback(MyMQTT)
-        mqttConnectionOptions.userName = userName
-        mqttConnectionOptions.password = password.toByteArray()
+        Log.d(TAG, "init: MQTT开始初始化")
         //启动任务
-        timer.schedule(timerTask, 0, 60_000)
+        if (!conning) {
+            connModbus()
+        }
     }
 
     private fun String.message() = MqttMessage(this.toByteArray())
-    private fun sendData(data: String) {
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun sendData(data: String) = GlobalScope.launch{
         if (MQTT.isConnected) {
             Log.d(TAG, "MQTT发送数据:[$data] ")
             MQTT.publish(dataTopic, data.message())
         }
     }
 
-    private fun sendEvent(data: String) {
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun sendEvent(data: String) = GlobalScope.launch{
         if (MQTT.isConnected) {
             Log.d(TAG, "MQTT发送事件:[$data] ")
             MQTT.publish(eventTopic, data.message())
@@ -109,10 +114,9 @@ object MyMQTT : MqttCallback {
      */
     override fun disconnected(disconnectResponse: MqttDisconnectResponse?) {
         Log.d(TAG, "disconnected: Mqtt客户端断开连接")
+        //启动任务
         if (!conning) {
-            conning = true
-            //启动任务
-            timer.schedule(timerTask, 0, 60_000)
+            connModbus()
         }
     }
 
