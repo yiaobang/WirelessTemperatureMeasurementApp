@@ -24,18 +24,32 @@ object MyModbus {
         address = Config.readConfig("modbus-IP", address)
         port = Config.readConfig("modbus-port", "502").toInt()
     }
-
     @OptIn(DelicateCoroutinesApi::class)
     fun init() = GlobalScope.launch {
         read()
-        if (::master.isInitialized) {
+        if (::master.isInitialized && master.isConnected) {
             master.disconnect()
         }
         master = ModbusTCPMaster(address, port)
         Log.d(TAG, "init: Modbus开始初始化")
-        conn()
+        if (!conning) {
+            GlobalScope.launch {
+                conning = true
+                while (conning) {
+                    try {
+                        master.connect()
+                        if (master.isConnected) {
+                            Log.d(TAG, "run: Modbus连接成功")
+                            conning = false
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "run: Modbus连接异常 ${e.message}")
+                    }
+                    sleep(60000)
+                }
+            }
+        }
     }
-
     @OptIn(DelicateCoroutinesApi::class)
     fun conn() = GlobalScope.launch {
         conning = true

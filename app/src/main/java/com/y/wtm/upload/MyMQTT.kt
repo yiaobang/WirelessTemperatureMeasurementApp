@@ -38,6 +38,7 @@ object MyMQTT : MqttCallback {
     private var clientId = UUID.randomUUID().toString()
     private var userName = ""
     private var password = ""
+    private var conning: Boolean = false
     private fun read() {
         address = Config.readConfig("mqtt-IP", address)
         port = Config.readConfig("mqtt-port", "1883").toInt()
@@ -45,10 +46,12 @@ object MyMQTT : MqttCallback {
         userName = Config.readConfig("mqtt-username", "")
         password = Config.readConfig("mqtt-password", "")
     }
+
     @OptIn(DelicateCoroutinesApi::class)
-    fun init() = GlobalScope.launch{
+    fun init() = GlobalScope.launch {
         read()
         if (::MQTT.isInitialized) {
+            MQTT.disconnect()
             MQTT.close()
         }
         MQTT = MqttClient("tcp://$address:$port", clientId, null)
@@ -57,14 +60,18 @@ object MyMQTT : MqttCallback {
         mqttConnectionOptions.password = password.toByteArray()
         mqttConnectionOptions.isAutomaticReconnect = true
         mqttConnectionOptions.setAutomaticReconnectDelay(60, 300)
-        connect()
+        if (!conning) {
+            connect()
+        }
     }
+
     @OptIn(DelicateCoroutinesApi::class)
-    fun connect()= GlobalScope.launch{
-        while (true){
+    fun connect() = GlobalScope.launch {
+        conning = true
+        while (true) {
             try {
                 MQTT.connect(mqttConnectionOptions)
-                if (MQTT.isConnected){
+                if (MQTT.isConnected) {
                     break
                 }
             } catch (e: Exception) {
@@ -73,6 +80,7 @@ object MyMQTT : MqttCallback {
             sleep(60000)
         }
     }
+
     private fun String.message() = MqttMessage(this.toByteArray())
     private fun sendData(data: String) {
         if (MQTT.isConnected) {
