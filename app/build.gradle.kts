@@ -13,11 +13,11 @@ ksp {
     arg("room.incremental", "true")
 }
 android {
-    namespace = "com.y.wirelesstemperaturemeasurement"
+    namespace = "com.y.wtm"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.y.wirelesstemperaturemeasurement"
+        applicationId = "com.y.wtm"
         minSdk = 23
         targetSdk = 34
         versionCode = 1
@@ -29,19 +29,9 @@ android {
     }
     buildTypes {
         release {
-            //代码压缩
-            isMinifyEnabled = true
-            //移除未引用资源
-            isShrinkResources = true
-            //代码混淆
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-        debug {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            //关闭混淆(打开会导致JNI 反射等等失败)
+            isMinifyEnabled = false
+            isShrinkResources = isMinifyEnabled
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -68,17 +58,9 @@ android {
     }
     //JNI
     sourceSets {
-        getByName("main").jniLibs.srcDirs("jni")
+        getByName("main").jniLibs.srcDirs("jniLibs")
     }
-    signingConfigs {
-        // 创建签名配置
-        create("signing") {
-            storeFile = file(projectDir.parent + "/$appName.jks")
-            storePassword = "123456"
-            keyAlias = "key"
-            keyPassword = "123456"
-        }
-    }
+
     //自定义编译打包后的名称
     applicationVariants.all {
         outputs.all {
@@ -89,9 +71,7 @@ android {
 }
 dependencies {
 
-    //串口
     implementation(libs.jSerialComm)
-    //Modbus
     implementation(libs.j2mod)
     //MQTT
     implementation(libs.org.eclipse.paho.mqttv5.client)
