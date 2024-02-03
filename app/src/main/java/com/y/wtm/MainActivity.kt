@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
         Config.initialize(applicationContext)
         RoomViewModel.initRoomViewModel(database = database)
         setContent {
+           // ProfileInstaller.writeProfile(this)
             NavHostViewModel.navHost(rememberNavController())
             ReadWidthHeight()
             WirelessTemperatureMeasurementApp()
