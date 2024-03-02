@@ -9,6 +9,11 @@ import androidx.lifecycle.viewModelScope
 import com.y.wtm.DAY
 import com.y.wtm.MONTH
 import com.y.wtm.TAG
+import com.y.wtm.data.driverClose
+import com.y.wtm.data.eventLevelCheck
+import com.y.wtm.data.initDriver
+import com.y.wtm.data.temperature
+import com.y.wtm.data.voltageRH
 import com.y.wtm.room.Data
 import com.y.wtm.room.DataBase
 import com.y.wtm.room.Event
@@ -22,12 +27,6 @@ import com.y.wtm.room.dao.PartsDao
 import com.y.wtm.room.dao.ShowEventDao
 import com.y.wtm.room.haveId
 import com.y.wtm.room.haveSerialNumber
-import com.y.wtm.serialport.connection
-import com.y.wtm.serialport.disConnection
-import com.y.wtm.serialport.eventLevelCheck
-import com.y.wtm.serialport.temperature
-import com.y.wtm.serialport.timeSum
-import com.y.wtm.serialport.voltageRH
 import com.y.wtm.ui.components.showToast
 import com.y.wtm.upload.MyMQTT
 import com.y.wtm.upload.MyModbus
@@ -62,21 +61,6 @@ object RoomViewModel : ViewModel() {
      * @param [database]
      */
     fun initRoomViewModel(database: DataBase) {
-        val currentTimeMillis = System.currentTimeMillis()
-        timeSum[1812400098] = currentTimeMillis
-        timeSum[2007271002] = currentTimeMillis
-        timeSum[2007271006] = currentTimeMillis
-        timeSum[2007271009] = currentTimeMillis
-        timeSum[2007271010] = currentTimeMillis
-
-        timeSum[1911036766] = currentTimeMillis
-        timeSum[1911036771] = currentTimeMillis
-        timeSum[1911036777] = currentTimeMillis
-        timeSum[1911036782] = currentTimeMillis
-        timeSum[1911036826] = currentTimeMillis
-        timeSum[2005075887] = currentTimeMillis
-        timeSum[2005075898] = currentTimeMillis
-
         this.DATA_BASE = database
         PARTS_DAO = DATA_BASE.partsDao()
         DATE_DAO = DATA_BASE.dataDao()
@@ -87,7 +71,7 @@ object RoomViewModel : ViewModel() {
         deleteOldData()
         updateParts()
         handler.post(updateData)
-        connection()
+        initDriver()
     }
 
 
@@ -417,10 +401,8 @@ object RoomViewModel : ViewModel() {
      *
      */
     fun closeDataBase() {
-        disConnection()
+        driverClose()
         handler.removeCallbacks(updateData)
         DATA_BASE.close()
     }
-
-
 }

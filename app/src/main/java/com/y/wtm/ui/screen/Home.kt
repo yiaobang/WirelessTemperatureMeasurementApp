@@ -131,8 +131,8 @@ private fun ShowData() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        items(PARTS) {
-            Data(it)
+        items(PARTS) {parts->
+            Data(parts)
         }
     }
 }
@@ -189,6 +189,7 @@ private fun Data(parts: MutableList<Parts>) {
                         maxLines = 1,
                         modifier = Modifier
                             .weight(0.5f)
+                            .fillMaxHeight()
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = currentParts.partsName
@@ -198,6 +199,7 @@ private fun Data(parts: MutableList<Parts>) {
                         maxLines = 1,
                         modifier = Modifier
                             .weight(0.3f)
+                            .fillMaxHeight()
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = SensorDataMap[currentParts.serialNumber].temp()
@@ -207,6 +209,7 @@ private fun Data(parts: MutableList<Parts>) {
                         maxLines = 1,
                         modifier = Modifier
                             .weight(0.25f)
+                            .fillMaxHeight()
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = SensorDataMap[currentParts.serialNumber].voltageRH()

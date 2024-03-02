@@ -6,9 +6,9 @@ import com.y.wtm.config.THSensorMinRH
 import com.y.wtm.config.THSensorMinTemp
 import com.y.wtm.config.TSensorAlarmMinTemp
 import com.y.wtm.config.TSensorMinTemp
-import com.y.wtm.serialport.RH
-import com.y.wtm.serialport.TEMP
-import com.y.wtm.serialport.VOLTAGE
+import com.y.wtm.data.RH
+import com.y.wtm.data.TEMP
+import com.y.wtm.data.VOLTAGE
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

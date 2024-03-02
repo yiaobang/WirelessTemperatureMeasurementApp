@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.y.wtm"
-        minSdk = 23
+        minSdk = 21
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
@@ -70,12 +70,14 @@ android {
     }
 }
 dependencies {
-
+    //USB-serial
+    implementation(libs.usb.serialport)
+    //serialPortComm
     implementation(libs.jSerialComm)
+    //Modbus
     implementation(libs.j2mod)
-    //MQTT
+    //MQTT Client
     implementation(libs.org.eclipse.paho.mqttv5.client)
-
     //SQLite 数据库
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.room.compiler)
@@ -98,7 +100,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     //AOT优化(Android7+)
-   // implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.profileinstaller)
 
 
     testImplementation(libs.junit)

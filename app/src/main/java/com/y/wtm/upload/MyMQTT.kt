@@ -7,7 +7,7 @@ import com.y.wtm.room.Data
 import com.y.wtm.room.temp
 import com.y.wtm.room.toDateTime
 import com.y.wtm.room.voltageRH
-import com.y.wtm.serialport.EventLevelAndMsg
+import com.y.wtm.data.EventLevelAndMsg
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -72,7 +72,7 @@ object MyMQTT : MqttCallback {
                 MQTT.connect()
                 conning = !MQTT.isConnected
             } catch (e: Exception) {
-                Log.e(TAG, "connModbus: MQTT连接报错", e)
+                Log.e(TAG, "connModbus: MQTT连接报错:${e.message}")
             }
             Thread.sleep(60_000)
         }

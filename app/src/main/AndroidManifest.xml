@@ -2,12 +2,20 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!--读写文件-->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <!--访问网络-->
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <!--USB-->
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
+    <!--USB host-->
+    <uses-feature android:name="android.hardware.usb.host" />
+    <!--开机启动-->
+<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -18,20 +26,36 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WirelessTemperatureMeasurementApp"
         tools:targetApi="31">
+        <!--注册自启动广播-->
+        <!--        <receiver-->
+        <!--            android:name=".receiver.AutoStartBroadReceiver"-->
+        <!--            android:exported="true">-->
+        <!--            <intent-filter>-->
+        <!--                <action android:name="android.intent.action.BOOT_COMPLETED" />-->
+        <!--                <category android:name="android.intent.category.HOME" />-->
+        <!--            </intent-filter>-->
+        <!--        </receiver>-->
         <activity
             android:name=".MainActivity"
+            android:enabled="true"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.WirelessTemperatureMeasurementApp"
             android:screenOrientation="landscape"
+            android:theme="@style/Theme.WirelessTemperatureMeasurementApp"
             android:windowLayoutInDisplayCutoutMode="always"
-            android:windowSoftInputMode="adjustResize"
-            >
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- USB -->
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
         </activity>
     </application>
 

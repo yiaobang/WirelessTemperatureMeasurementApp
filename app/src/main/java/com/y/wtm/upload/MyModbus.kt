@@ -35,7 +35,7 @@ object MyModbus {
                 master.connect()
                 conning = !master.isConnected
             } catch (e: Exception) {
-                Log.e(TAG, "connModbus: ", e)
+                Log.e(TAG, "connModbus: ${e.message}")
             }
             sleep(60_000)
         }

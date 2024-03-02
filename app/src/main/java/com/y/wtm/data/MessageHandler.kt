@@ -1,4 +1,4 @@
-package com.y.wtm.serialport
+package com.y.wtm.data
 
 import android.util.Log
 import com.y.wtm.TAG
@@ -8,37 +8,49 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-//需要回复的数据
-private val replyMsg: MutableMap<Long, ByteArray> = mutableMapOf()
-
-val timeSum: MutableMap<Long, Long> = mutableMapOf()
+//需要回复的数据缓存
+private val replyMessage: MutableMap<Long, ByteArray> = mutableMapOf()
 
 //数据缓存
 private val dataBuffer = mutableListOf<Byte>()
-fun dataParse(data: ByteArray) {
-    dataBuffer.addAll(data.asList())
-    examineData()
+
+//计算测温间隔
+val timeSum: MutableMap<Long, Long> = mutableMapOf()
+
+fun messageProcessing(byte: Byte) {
+    dataBuffer.add(byte)
+    if (byte == DELIMITER) {
+        messageProcessing()
+    }
 }
 
-private fun examineData() {
-    if (dataBuffer.firstOrNull() != 0x53.toByte()) {
+fun messageProcessing(data: ByteArray) {
+    dataBuffer.addAll(data.asList())
+    messageProcessing()
+}
+
+/**
+ * 消息检查
+ *
+ */
+fun messageProcessing() {
+    Log.d(TAG, "MessageHandler:${dataBuffer.toByteArray().toHexStrArray().contentToString()}")
+    //检查数据长度
+    if (dataBuffer.size < MIN_MESSAGE_SIZE || dataBuffer.size < dataBuffer[4] + 7) return
+    //校验数据开头结尾和数据长度
+    if (dataBuffer.firstOrNull() != 0x53.toByte() || dataBuffer.lastOrNull() != 0x16.toByte() || dataBuffer.size > dataBuffer[4] + 7) {
         dataBuffer.clear()
         return
     }
-    if (dataBuffer.size < MIN_DATA_SIZE) return
-    if (dataBuffer.size > dataBuffer[4] + 7) {
-        dataBuffer.clear()
-        return
+    //检查校验和
+    if (checkSum(dataBuffer)) {
+        messageDistribute(dataBuffer.toByteArray())
     }
-    //如果数据符合要求
-    if (dataBuffer.size == dataBuffer[4] + 7 && checksum(dataBuffer)) {
-        parseData(dataBuffer.toByteArray())
-        dataBuffer.clear()
-    }
+    dataBuffer.clear()
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-private fun parseData(bytes: ByteArray) = GlobalScope.launch {
+private fun messageDistribute(bytes: ByteArray) = GlobalScope.launch {
     when (bytes[3]) {
         MinorFunctionCode.RW.byte -> readWriteHandler(bytes)
         MinorFunctionCode.TEMP.byte -> tempHandler(bytes)
@@ -78,11 +90,12 @@ private fun errorHandler(bytes: ByteArray) {
 
 private fun tempHandler(msg: ByteArray) {
     val serialNumber = address(msg[5], msg[6], msg[7], msg[8]).toLong()
-    if (!replyMsg.containsKey(serialNumber)) {
-        replyMsg[serialNumber] = computeReplyData(msg)
+    if (!replyMessage.containsKey(serialNumber)) {
+        replyMessage[serialNumber] = computeReplyData(msg)
     }
-    replyMsg[serialNumber]?.let { writeData(it) }
-    Log.e(TAG, "$serialNumber : ${(System.currentTimeMillis() - timeSum[serialNumber]!!) / 1000}秒")
+    replyMessage[serialNumber]?.let { write(it) }
+    val lastTime = timeSum[serialNumber] ?: 0
+    Log.e(TAG, "$serialNumber : ${(System.currentTimeMillis() - lastTime) / 1000}秒")
     timeSum[serialNumber] = System.currentTimeMillis()
-    RoomViewModel.addPartsData(serialNumber,msg)
+    RoomViewModel.addPartsData(serialNumber, msg)
 }

@@ -1,5 +1,8 @@
 package com.y.wtm
 
+import android.app.PendingIntent
+import android.content.Intent
+import android.hardware.usb.UsbManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -9,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.navigation.compose.rememberNavController
 import com.y.wtm.config.Config
+import com.y.wtm.data.USB_MANAGER
 import com.y.wtm.room.DataBase
 import com.y.wtm.viewmodel.NavHostViewModel
 import com.y.wtm.viewmodel.RoomViewModel
@@ -25,21 +29,35 @@ var HEIGHT = 0f
 
 //一天时间少1毫秒
 const val DAY: Long = 86_399_999L
+
 //一个月的时间是多少毫秒
 const val MONTH: Long = 2_592_000_000L
-
-
+const val ACTION_USB_PERMISSION = "com.android.usb.USB_PERMISSION\""
+lateinit var pendingIntent: PendingIntent
 class MainActivity : ComponentActivity() {
     private val database: DataBase by lazy { DataBase.initDataBase(applicationContext) }
+    private val usbManager: UsbManager by lazy { getSystemService(USB_SERVICE) as UsbManager }
+    private val p: PendingIntent by lazy {
+        PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            Intent(ACTION_USB_PERMISSION),
+            PendingIntent.FLAG_IMMUTABLE
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate: ")
         // enableEdgeToEdge()
+        //初始化配置文件
         Config.initialize(applicationContext)
+        //初始化USB管理器
+        USB_MANAGER = this.usbManager
+        pendingIntent = p
         RoomViewModel.initRoomViewModel(database = database)
         setContent {
-           // ProfileInstaller.writeProfile(this)
+            // ProfileInstaller.writeProfile(this)
             NavHostViewModel.navHost(rememberNavController())
             ReadWidthHeight()
             WirelessTemperatureMeasurementApp()
@@ -71,6 +89,7 @@ class MainActivity : ComponentActivity() {
         RoomViewModel.closeDataBase()
         Log.d(TAG, "onDestroy: ")
     }
+
 
 }
 

@@ -263,8 +263,7 @@ private fun Parts(parts: MutableList<Parts>) {
                 .fillMaxHeight()
         ) {
             parts.forEach {
-                Row(
-                    Modifier
+                Row(Modifier
                         .fillMaxWidth()
                         .weight(1f)
                 ) {
@@ -272,6 +271,7 @@ private fun Parts(parts: MutableList<Parts>) {
                         fontSize = 18.sp,
                         modifier = Modifier
                             .weight(0.5f)
+                            .fillMaxHeight()
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = it.partsName
@@ -280,6 +280,7 @@ private fun Parts(parts: MutableList<Parts>) {
                         fontSize = 18.sp,
                         modifier = Modifier
                             .weight(0.3f)
+                            .fillMaxHeight()
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = it.serialNumber.toString()
@@ -288,6 +289,7 @@ private fun Parts(parts: MutableList<Parts>) {
                         fontSize = 18.sp,
                         modifier = Modifier
                             .weight(0.25f)
+                            .fillMaxHeight()
                             .border(1.dp, Color.Black)
                             .wrapContentSize(Alignment.Center),
                         text = it.type.sensorType()

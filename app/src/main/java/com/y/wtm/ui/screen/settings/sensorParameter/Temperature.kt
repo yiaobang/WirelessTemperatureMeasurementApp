@@ -33,7 +33,7 @@ import com.y.wtm.config.TSensorMaxTemp
 import com.y.wtm.config.TSensorMinTemp
 import com.y.wtm.config.show
 import com.y.wtm.config.slave
-import com.y.wtm.serialport.TEMP
+import com.y.wtm.data.TEMP
 import com.y.wtm.room.isNumberParameter
 import com.y.wtm.ui.components.TopBar
 import com.y.wtm.ui.components.showToast
