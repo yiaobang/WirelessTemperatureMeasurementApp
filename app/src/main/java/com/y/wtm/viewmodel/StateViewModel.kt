@@ -44,4 +44,7 @@ object StateViewModel : ViewModel() {
         audible = !audible
         writeConfig("audible", audible.toString())
     }
+    fun updateWindow(){
+
+    }
 }

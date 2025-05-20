@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.sp
 import com.y.wtm.R
 import com.y.wtm.room.Parts
 import com.y.wtm.room.temp
-import com.y.wtm.room.voltageRH
 import com.y.wtm.ui.theme.ThemeColor
 import com.y.wtm.viewmodel.NavHostViewModel
 import com.y.wtm.viewmodel.RoomViewModel
@@ -55,17 +54,17 @@ fun Home() {
 @Composable
 private fun HomeContentTitle() {
     Row(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            fontSize = 20.sp,
-            maxLines = 1,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .weight(0.2f)
-                .height(30.dp)
-                .border(1.dp, Color.Black)
-                .wrapContentSize(Alignment.Center),
-            text = "id"
-        )
+//        Text(
+//            fontSize = 20.sp,
+//            maxLines = 1,
+//            fontWeight = FontWeight.Bold,
+//            modifier = Modifier
+//                .weight(0.2f)
+//                .height(30.dp)
+//                .border(1.dp, Color.Black)
+//                .wrapContentSize(Alignment.Center),
+//            text = "id"
+//        )
         Text(
             fontSize = 20.sp,
             maxLines = 1,
@@ -99,17 +98,17 @@ private fun HomeContentTitle() {
                 .wrapContentSize(Alignment.Center),
             text = "温度"
         )
-        Text(
-            fontSize = 20.sp,
-            maxLines = 1,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .weight(0.25f)
-                .height(30.dp)
-                .border(1.dp, Color.Black)
-                .wrapContentSize(Alignment.Center),
-            text = "电压/湿度"
-        )
+//        Text(
+//            fontSize = 20.sp,
+//            maxLines = 1,
+//            fontWeight = FontWeight.Bold,
+//            modifier = Modifier
+//                .weight(0.25f)
+//                .height(30.dp)
+//                .border(1.dp, Color.Black)
+//                .wrapContentSize(Alignment.Center),
+//            text = "电压/湿度"
+//        )
     }
 }
 
@@ -145,24 +144,24 @@ private fun Data(parts: MutableList<Parts>) {
             .height((24 * parts.size).dp),
         horizontalArrangement = Arrangement.Center
     ) {
-        Column(
-            Modifier
-                .weight(0.2f)
-                .fillMaxHeight()
-        ) {
-            parts.forEach {
-                Text(
-                    fontSize = 18.sp,
-                    maxLines = 1,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .border(1.dp, Color.Black)
-                        .wrapContentSize(Alignment.Center),
-                    text = it.id.toString()
-                )
-            }
-        }
+//        Column(
+//            Modifier
+//                .weight(0.2f)
+//                .fillMaxHeight()
+//        ) {
+//            parts.forEach {
+//                Text(
+//                    fontSize = 18.sp,
+//                    maxLines = 1,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .weight(1f)
+//                        .border(1.dp, Color.Black)
+//                        .wrapContentSize(Alignment.Center),
+//                    text = it.id.toString()
+//                )
+//            }
+//        }
         Text(
             fontSize = 18.sp,
             maxLines = 1,
@@ -175,7 +174,7 @@ private fun Data(parts: MutableList<Parts>) {
         )
         Column(
             Modifier
-                .weight(1.05f)
+                .weight(0.8f)
                 .fillMaxHeight()
         ) {
             parts.forEach { currentParts ->
@@ -204,16 +203,16 @@ private fun Data(parts: MutableList<Parts>) {
                             .wrapContentSize(Alignment.Center),
                         text = SensorDataMap[currentParts.serialNumber].temp()
                     )
-                    Text(
-                        fontSize = 18.sp,
-                        maxLines = 1,
-                        modifier = Modifier
-                            .weight(0.25f)
-                            .fillMaxHeight()
-                            .border(1.dp, Color.Black)
-                            .wrapContentSize(Alignment.Center),
-                        text = SensorDataMap[currentParts.serialNumber].voltageRH()
-                    )
+//                    Text(
+//                        fontSize = 18.sp,
+//                        maxLines = 1,
+//                        modifier = Modifier
+//                            .weight(0.25f)
+//                            .fillMaxHeight()
+//                            .border(1.dp, Color.Black)
+//                            .wrapContentSize(Alignment.Center),
+//                        text = SensorDataMap[currentParts.serialNumber].voltageRH()
+//                    )
                 }
             }
         }

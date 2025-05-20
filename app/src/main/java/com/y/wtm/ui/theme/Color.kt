@@ -3,8 +3,6 @@ package com.y.wtm.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val ThemeColor = Color(0xffff8802)
-
-
 val APhase = Color(0xfffcbd04)
 val BPhase = Color(0xff17a814)
 val CPhase = Color(0xffc70505)

@@ -15,7 +15,7 @@
     <!--USB host-->
     <uses-feature android:name="android.hardware.usb.host" />
     <!--开机启动-->
-<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
+    <!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />-->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -35,12 +35,12 @@
         <!--                <category android:name="android.intent.category.HOME" />-->
         <!--            </intent-filter>-->
         <!--        </receiver>-->
+        <!-- 强制横屏           android:screenOrientation="landscape"-->
         <activity
             android:name=".MainActivity"
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name"
-            android:screenOrientation="landscape"
             android:theme="@style/Theme.WirelessTemperatureMeasurementApp"
             android:windowLayoutInDisplayCutoutMode="always"
             android:windowSoftInputMode="adjustResize">

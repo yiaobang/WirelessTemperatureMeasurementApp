@@ -28,7 +28,6 @@ private var parity: Int = 0
 private var flow: String = "NONE"
 private fun updateParameter() {
     val type = Config.readConfig("通信方式", "COM")
-    println(type)
     driverType = DriverType.driverType(type)
     serialNumber = Config.readConfig(type, "")
     baudRate = Config.readConfig("baudRate", "19200").baudRate()

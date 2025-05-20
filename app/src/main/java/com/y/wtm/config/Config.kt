@@ -9,17 +9,17 @@ import com.y.wtm.data.serialPorts
 import com.y.wtm.data.usbSerialDrivers
 import com.y.wtm.ui.Parameter
 
+
+
 @SuppressWarnings("all")
 object Config {
     //配置文件名称
     private const val CONFIG_NAME = "WirelessTemperatureMeasurementAppConfig"
-    private lateinit var context: Context
     private lateinit var read: SharedPreferences
     private lateinit var write: SharedPreferences.Editor
     fun initialize(context: Context) {
         Log.d(TAG, "Config: 初始化配置文件")
-        this.context = context
-        read = Config.context.getSharedPreferences(CONFIG_NAME, Context.MODE_PRIVATE)
+        read = context.getSharedPreferences(CONFIG_NAME, Context.MODE_PRIVATE)
         write = read.edit()
     }
 
@@ -31,8 +31,7 @@ object Config {
     }
 }
 
-val driverTypeParameter =
-    Parameter("通信方式", DriverType.entries.map { DriverType.driverType(it) })
+val driverTypeParameter = Parameter("通信方式", DriverType.entries.map { DriverType.driverType(it) })
 val usbNumbersParameter = Parameter("USB", usbSerialDrivers.map { it.device.serialNumber as String })
 val serialNumbersParameter = Parameter("COM", serialPorts.map { it.systemPortName })
 val baudRateParameter = Parameter("波特率", listOf("19200", "115200"))

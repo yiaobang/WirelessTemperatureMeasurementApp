@@ -1,8 +1,7 @@
 package com.y.wtm
 
-import android.app.PendingIntent
-import android.content.Intent
 import android.hardware.usb.UsbManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -23,38 +22,25 @@ import java.net.SocketException
 
 
 const val TAG = "无线温湿度监测"
-
 var WIDTH = 0f
 var HEIGHT = 0f
-
 //一天时间少1毫秒
 const val DAY: Long = 86_399_999L
-
 //一个月的时间是多少毫秒
 const val MONTH: Long = 2_592_000_000L
-const val ACTION_USB_PERMISSION = "com.android.usb.USB_PERMISSION\""
-lateinit var pendingIntent: PendingIntent
+val ANDROID_VERSION = Build.VERSION.SDK_INT
 class MainActivity : ComponentActivity() {
     private val database: DataBase by lazy { DataBase.initDataBase(applicationContext) }
     private val usbManager: UsbManager by lazy { getSystemService(USB_SERVICE) as UsbManager }
-    private val p: PendingIntent by lazy {
-        PendingIntent.getBroadcast(
-            applicationContext,
-            0,
-            Intent(ACTION_USB_PERMISSION),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         Log.d(TAG, "onCreate: ")
         // enableEdgeToEdge()
         //初始化配置文件
         Config.initialize(applicationContext)
         //初始化USB管理器
         USB_MANAGER = this.usbManager
-        pendingIntent = p
         RoomViewModel.initRoomViewModel(database = database)
         setContent {
             // ProfileInstaller.writeProfile(this)
@@ -63,7 +49,6 @@ class MainActivity : ComponentActivity() {
             WirelessTemperatureMeasurementApp()
         }
     }
-
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart: ")
@@ -98,12 +83,8 @@ fun ReadWidthHeight() {
     //获取屏幕宽高
     val context = LocalContext.current
     val displayMetrics = context.resources.displayMetrics
-    val screenWidthDp = with(LocalDensity.current) {
-        displayMetrics.widthPixels.toDp()
-    }
-    val screenHeightDp = with(LocalDensity.current) {
-        displayMetrics.heightPixels.toDp()
-    }
+    val screenWidthDp = with(LocalDensity.current) { displayMetrics.widthPixels.toDp() }
+    val screenHeightDp = with(LocalDensity.current) { displayMetrics.heightPixels.toDp() }
     WIDTH = screenWidthDp.value
     HEIGHT = screenHeightDp.value
     Log.d(TAG, "ReadWidthHeight: 宽:${WIDTH}dp 高:${HEIGHT}dp")

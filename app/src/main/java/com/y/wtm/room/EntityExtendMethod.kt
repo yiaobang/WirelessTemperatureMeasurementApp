@@ -20,16 +20,14 @@ fun HistoryData?.voltageRH(): String =
     if (this == null) "--" else voltageRH(this.type, this.voltageRH)
 
 fun ShowEvent?.temp(): String = if (this == null) "--" else temp(this.temperature)
-fun ShowEvent?.voltageRH(): String =
-    if (this == null) "--" else voltageRH(this.type, this.voltageRH)
+fun ShowEvent?.voltageRH(): String = if (this == null) "--" else voltageRH(this.type, this.voltageRH)
 
-fun temp(temperature: Int): String = "${temperature / 100.0}$TEMP"
+fun temp(temperature: Int): String = String.format("%.1f$TEMP", temperature / 100.0)
 fun voltageRH(type: Int, voltageRH: Int): String = when (type) {
-    1 -> "${voltageRH / 1000.0}$VOLTAGE"
-    2 -> "${voltageRH / 100.0}$RH"
+    1 -> String.format("%.1f$VOLTAGE", voltageRH / 1000.0)
+    2 -> String.format("%.1f$RH", voltageRH / 100.0)
     else -> "--"
 }
-
 
 fun Int.sensorType() = when (this) {
     1 -> "温度"

@@ -10,7 +10,6 @@ import com.y.wtm.data.SOFT
 import com.y.wtm.data.USB_MANAGER
 import com.y.wtm.data.UsbMessageListener
 import com.y.wtm.data.toHexStrArray
-import com.y.wtm.pendingIntent
 import com.y.wtm.upload.MyMQTT
 import com.y.wtm.upload.MyModbus
 import com.y.wtm.viewmodel.StateViewModel
@@ -27,7 +26,6 @@ class DriverUSB(
     private val writeTimeOut: Int = 200
 ) : Driver {
     private var usbDriver: UsbSerialPort? = null
-
     @OptIn(DelicateCoroutinesApi::class)
     override fun open() {
         GlobalScope.launch {
@@ -36,7 +34,7 @@ class DriverUSB(
             //没有权限就申请一下
             if (!USB_MANAGER.hasPermission(device)) {
                 //请求权限
-                USB_MANAGER.requestPermission(device, pendingIntent)
+               // USB_MANAGER.requestPermission(device, pendingIntent)
             } else {
                 val openDevice = USB_MANAGER.openDevice(device)
                 usbDriver = usbSerialDriver.ports?.get(0)
